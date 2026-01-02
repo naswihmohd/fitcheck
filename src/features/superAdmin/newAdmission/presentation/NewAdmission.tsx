@@ -100,7 +100,7 @@ const NewAdmission = () => {
                     </div>
                 </div>
 
-                {/* Tabs and Filters */}
+                {/* Tabs */}
                 <div className="flex gap-2 overflow-y-auto pt-4">
                     {tabs.map(({ label, slug }) => (
                         <NavLink

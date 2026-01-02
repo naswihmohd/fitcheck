@@ -9,6 +9,9 @@ import NewAdmission from '../../features/superAdmin/newAdmission/presentation/Ne
 import AdmissionPendingStudents from '../../features/superAdmin/newAdmission/presentation/components/AdmissionPendingStudents.tsx';
 import AdmissionCompletedStudents from '../../features/superAdmin/newAdmission/presentation/components/AdmissionCompletedStudents.tsx';
 import Branches from '../../features/superAdmin/branches/presentation/Branches.tsx';
+import TermsAndConditions from '../../features/superAdmin/termsAndConditions/presentation/TermsAndConditions.tsx';
+import TermsAndConditionsForm from '../../features/superAdmin/termsAndConditions/presentation/components/TermsAndConditionsForm.tsx';
+import PrivacyAndPolicyForm from '../../features/superAdmin/termsAndConditions/presentation/components/PrivacyAndPolicyForm.tsx';
 
 
 export const router = createBrowserRouter([
@@ -34,7 +37,12 @@ export const router = createBrowserRouter([
       },
       { path: 'branches', element: <Branches />, },
       { path: 'notice-board', element: <div>Notice Board</div> },
-      { path: 'terms-condition', element: <div>Terms & Condition</div> },
+      {
+        path: 'terms-condition', element: <TermsAndConditions />, children: [
+          { index: true, element: <TermsAndConditionsForm /> },
+          { path: 'privacy', element: <PrivacyAndPolicyForm /> },
+        ]
+      },
       { path: 'reports-analytics', element: <div>Reports & Analytics</div> },
       { path: 'fee-collection', element: <div>Fee Collection</div> },
       { path: 'holidays', element: <div>Holidays</div> },
