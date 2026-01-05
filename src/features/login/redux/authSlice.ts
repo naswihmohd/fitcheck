@@ -1,6 +1,6 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { UserProps } from "../../superAdminBranches/data/userTypes";
-import type { BranchProps, TargetProps } from "../../superAdminBranches/data/branchTypes";
+import { createSlice } from "@reduxjs/toolkit";
+import type { UserProps } from "../data/userTypes";
+import type { BranchProps } from "../../superAdmin/addBranch/data/branchTypes";
 
 interface AuthState {
     user: UserProps | null;
@@ -33,26 +33,6 @@ const userSlice = createSlice({
             state.branchData = null;
             state.branchId = null;
         },
-        setTarget: (state, action: PayloadAction<{ year: string, target: TargetProps }>) => {
-            if (!state.branchData) {
-                console.warn("Cannot set target: branchData is null");
-                return;
-            }
-            const { year, target } = action.payload;
-
-            // Ensure branchData exists and initialize targets if needed
-            if (!state.branchData.targets) {
-                state.branchData.targets = {};
-            }
-
-            // Update the target for the given year
-            // Use the target as-is since it's already a complete TargetProps
-            state.branchData.targets[year] = {
-                ...target,
-                branchId: state.branchData.id,
-                id: year,
-            };
-        },
     },
     // extraReducers: (builder) => {
     //   builder
@@ -70,5 +50,4 @@ export const {
     clearUser,
     setBranchId,
     setBranchData,
-    setTarget,
 } = userSlice.actions;

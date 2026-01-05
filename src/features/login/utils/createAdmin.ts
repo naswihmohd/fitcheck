@@ -1,7 +1,7 @@
 // import { createUserWithEmailAndPassword } from "firebase/auth";
 // import { doc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 // import { auth, db } from "../../../firebaseConfig";
-// import type { UserProps } from "../../superAdminBranches/data/userTypes";
+// import type { UserProps } from "../data/userTypes";
 
 // interface CreateAdminParams {
 //   email: string;

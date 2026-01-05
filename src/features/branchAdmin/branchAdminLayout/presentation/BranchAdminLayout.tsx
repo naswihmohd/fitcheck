@@ -55,7 +55,7 @@ const BranchAdminLayout = () => {
             </div>
 
             {/* Blocked Branch Modal */}
-            <BlockShowingModal isOpen={!!isBranchBlocked} branchName={branchData?.branch} />
+            <BlockShowingModal isOpen={!!isBranchBlocked} branchName={branchData?.branchName} />
         </div>
     );
 };

@@ -2,6 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from "redux-persist/lib/storage";
 import authReducer from '../../features/login/redux/authSlice';
+import branchesReducer from '../../features/superAdmin/branches/redux/branchesSlice';
+import branchUsersReducer from '../../features/superAdmin/branchLoginUsers/redux/branchUsersSlice';
 
 
 const persistConfig = {
@@ -15,6 +17,8 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 const store = configureStore({
   reducer: {
     user: persistedAuthReducer,
+    branches: branchesReducer,
+    branchUsers: branchUsersReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

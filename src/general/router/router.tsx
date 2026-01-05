@@ -12,6 +12,7 @@ import Branches from '../../features/superAdmin/branches/presentation/Branches.t
 import TermsAndConditions from '../../features/superAdmin/termsAndConditions/presentation/TermsAndConditions.tsx';
 import TermsAndConditionsForm from '../../features/superAdmin/termsAndConditions/presentation/components/TermsAndConditionsForm.tsx';
 import PrivacyAndPolicyForm from '../../features/superAdmin/termsAndConditions/presentation/components/PrivacyAndPolicyForm.tsx';
+import BranchDetail from '../../features/superAdmin/branchDetail/presentation/BranchDetail.tsx';
 
 
 export const router = createBrowserRouter([
@@ -35,7 +36,8 @@ export const router = createBrowserRouter([
           { path: 'completed', element: <AdmissionCompletedStudents /> },
         ]
       },
-      { path: 'branches', element: <Branches />, },
+      { path: 'branches', element: <Branches />},
+      { path: 'branches/:branchId', element: <BranchDetail />},
       { path: 'notice-board', element: <div>Notice Board</div> },
       {
         path: 'terms-condition', element: <TermsAndConditions />, children: [
