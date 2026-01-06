@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { FiTrash2, FiEdit } from 'react-icons/fi';
 import branchIcon from '../../../../../assets/icons/branch-icon.svg';
 import type { UserProps, AccessKey } from '../../../../login/data/userTypes';
 
@@ -14,6 +13,9 @@ import placementManagementIcon from '../../../../../assets/images/branch-admin-s
 import studentManagementIcon from '../../../../../assets/images/branch-admin-sidebar-icons/student-management-icon.svg';
 import testPortalIcon from '../../../../../assets/images/branch-admin-sidebar-icons/test-portal-icon.svg';
 import tutorMangementIcon from '../../../../../assets/images/branch-admin-sidebar-icons/tutor-mangement-icon.svg';
+import BranchUserAccessButton from './BranchUserAccessButton';
+import EditBranchUserButton from './EditBranchUserButton';
+import { useNavigate } from 'react-router';
 
 // Access icon mapping - matching AccessKey from userTypes.ts
 const accessIcons: Record<AccessKey, { icon: string; label: string }> = {
@@ -32,9 +34,17 @@ const accessIcons: Record<AccessKey, { icon: string; label: string }> = {
 interface BranchUserCardProps {
     user: UserProps;
     index: number;
+    branchId: string;
 }
 
-const BranchUserCard = ({ user, index }: BranchUserCardProps) => {
+const BranchUserCard = ({ user, index, branchId }: BranchUserCardProps) => {
+
+    const navigate = useNavigate();
+
+    const handleEditAccess = () => {
+        navigate(`/branches/${branchId}/${user.id}`);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -76,17 +86,15 @@ const BranchUserCard = ({ user, index }: BranchUserCardProps) => {
                         {(Object.keys(accessIcons) as AccessKey[]).map((accessKey) => {
                             const accessItem = accessIcons[accessKey];
                             const isEnabled = user.access[accessKey] === true;
-                            
                             return (
                                 <div
                                     key={accessKey}
-                                    className={`w-6 h-6 flex items-center justify-center transition-opacity ${
-                                        isEnabled ? 'opacity-100' : 'opacity-30'
-                                    }`}
+                                    className={`w-6 h-6 flex items-center justify-center transition-opacity ${isEnabled ? 'opacity-100' : 'opacity-30'
+                                        }`}
                                     title={`${accessItem.label} - ${isEnabled ? 'Enabled' : 'Disabled'}`}
                                 >
-                                    <img 
-                                        src={accessItem.icon} 
+                                    <img
+                                        src={accessItem.icon}
                                         alt={accessItem.label}
                                         className="w-5 h-5"
                                     />
@@ -94,6 +102,7 @@ const BranchUserCard = ({ user, index }: BranchUserCardProps) => {
                             );
                         })}
                         <button
+                            onClick={handleEditAccess}
                             className="text-primary text-xs font-medium hover:underline ml-2"
                         >
                             Edit Access
@@ -106,20 +115,17 @@ const BranchUserCard = ({ user, index }: BranchUserCardProps) => {
             <div className="flex-shrink-0 flex items-center my-auto gap-3">
 
                 {/* Delete Icon */}
-                <button
+                {/* <button
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                     title="Delete"
                 >
                     <FiTrash2 className="w-5 h-5" />
-                </button>
+                </button> */}
 
-                {/* Edit Icon */}
-                <button
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
-                    title="Edit"
-                >
-                    <FiEdit className="w-5 h-5" />
-                </button>
+                {/* Edit button */}
+                <EditBranchUserButton user={user} branchId={branchId} />
+
+                <BranchUserAccessButton user={user} branchId={branchId} />
             </div>
         </motion.div>
     );

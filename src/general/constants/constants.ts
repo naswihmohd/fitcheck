@@ -11,6 +11,7 @@ export class Constants {
 
 export class CloudFunctionsURLs {
     static readonly CREATE_LOGIN_USER = 'https://createloginuser-kh5r4s6x4q-uc.a.run.app';
+    static readonly SEND_NOTIFICATION = 'https://sendnotification-kh5r4s6x4q-uc.a.run.app';
 }
 
 

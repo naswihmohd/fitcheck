@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import FormLoading from '../../../../../general/components/FormLoading';
 import { CloudFunctionsURLs } from '../../../../../general/constants/constants';
 import type { UserProps } from '../../../../login/data/userTypes';
-import { addBranchUser } from '../../redux/branchUsersSlice';
+import { addBranchUser, updateBranchUser } from '../../redux/branchUsersSlice';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../../../../general/redux/store';
 
@@ -98,7 +98,7 @@ const CreateLoginModal: React.FC<CreateLoginModalProps> = ({
                 // Update Firestore document
                 const userRef = doc(db, "users", user.id);
                 await updateDoc(userRef, updatedData);
-
+                dispatch(updateBranchUser({ branchId: branchId, user: { ...user, ...updatedData } }));
                 toast.success("Login user updated successfully!");
                 onClose();
                 return;

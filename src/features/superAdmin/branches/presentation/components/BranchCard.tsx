@@ -32,7 +32,7 @@ const BranchCard: React.FC<BranchCardProps> = ({
       style={{
         boxShadow: '0px 0.92px 2.75px 0px #0051AF1A',
       }}
-      className="bg-white rounded-lg p-6 flex items-start gap-6"
+      className="bg-white cursor-pointer rounded-lg p-6 flex items-start gap-6"
     >
       {/* Left Icon - Building Icon */}
       <div className="flex-shrink-0 px-5 my-auto">

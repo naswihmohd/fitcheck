@@ -99,18 +99,18 @@ const branchUserslice = createSlice({
             }
         },
         updateBranchUser: (state, action) => {
-            const { branchId, client } = action.payload as {
+            const { branchId, user } = action.payload as {
                 branchId: string;
-                client: UserProps;
+                user: UserProps;
             };
 
             if (!state.branchUsers[branchId]) return;
 
-            const index = state.branchUsers[branchId].users.findIndex(t => t.id === client.id);
+            const index = state.branchUsers[branchId].users.findIndex(t => t.id === user.id);
             if (index !== -1) {
                 state.branchUsers[branchId].users[index] = {
                     ...state.branchUsers[branchId].users[index],
-                    ...client,
+                    ...user,
                 };
             }
         },

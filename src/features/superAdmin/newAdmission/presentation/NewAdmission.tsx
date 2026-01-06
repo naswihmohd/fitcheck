@@ -121,7 +121,6 @@ const NewAdmission = () => {
             </div>
 
             <Outlet />
-
         </motion.div >
     )
 }

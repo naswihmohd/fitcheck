@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import authReducer from '../../features/login/redux/authSlice';
 import branchesReducer from '../../features/superAdmin/branches/redux/branchesSlice';
 import branchUsersReducer from '../../features/superAdmin/branchLoginUsers/redux/branchUsersSlice';
+import notificationsReducer from '../../features/superAdmin/superAdminNoticeBoard/redux/notificationSlice';
 
 
 const persistConfig = {
@@ -19,6 +20,7 @@ const store = configureStore({
     user: persistedAuthReducer,
     branches: branchesReducer,
     branchUsers: branchUsersReducer,
+    notifications: notificationsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

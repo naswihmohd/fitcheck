@@ -81,7 +81,7 @@ const BranchLoginUsers = ({ branch }: { branch: BranchProps }) => {
             <div className="space-y-3">
                 {currentBranchUsers.length > 0 ? (
                     currentBranchUsers.map((user, index) => (
-                        <BranchUserCard key={user.id} index={index} user={user} />
+                        <BranchUserCard key={user.id} index={index} user={user} branchId={branch.id} />
                     ))
                 ) : !loading && (
                     <div className="flex items-center justify-center py-12">

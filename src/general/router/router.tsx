@@ -13,6 +13,13 @@ import TermsAndConditions from '../../features/superAdmin/termsAndConditions/pre
 import TermsAndConditionsForm from '../../features/superAdmin/termsAndConditions/presentation/components/TermsAndConditionsForm.tsx';
 import PrivacyAndPolicyForm from '../../features/superAdmin/termsAndConditions/presentation/components/PrivacyAndPolicyForm.tsx';
 import BranchDetail from '../../features/superAdmin/branchDetail/presentation/BranchDetail.tsx';
+import EditBranchAccessPage from '../../features/superAdmin/branchLoginUsers/presentation/componets/EditBranchAccessPage.tsx';
+import SuperAdminNoticeBoard from '../../features/superAdmin/superAdminNoticeBoard/presentation/SuperAdminNoticeBoard.tsx';
+import StudentsNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/StudentsNotification.tsx';
+import TutorNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/TutorNotification.tsx';
+import SaleExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/SaleExecutiveNotification.tsx';
+import PlacementExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/PlacementExecutiveNotification.tsx';
+import BranchesNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/BranchesNotification.tsx';
 
 
 export const router = createBrowserRouter([
@@ -36,9 +43,19 @@ export const router = createBrowserRouter([
           { path: 'completed', element: <AdmissionCompletedStudents /> },
         ]
       },
-      { path: 'branches', element: <Branches />},
-      { path: 'branches/:branchId', element: <BranchDetail />},
-      { path: 'notice-board', element: <div>Notice Board</div> },
+      {
+        path: 'notice-board', element: <SuperAdminNoticeBoard />,
+        children: [
+          { index: true, element: <StudentsNotification /> },
+          { path: 'tutor', element: <TutorNotification /> },
+          { path: 'sales-executive', element: <SaleExecutiveNotification /> },
+          { path: 'placement-executive', element: <PlacementExecutiveNotification /> },
+          { path: 'branches', element: <BranchesNotification /> },
+        ]
+      },
+      { path: 'branches', element: <Branches /> },
+      { path: 'branches/:branchId', element: <BranchDetail /> },
+      { path: 'branches/:branchId/:userId', element: <EditBranchAccessPage /> },
       {
         path: 'terms-condition', element: <TermsAndConditions />, children: [
           { index: true, element: <TermsAndConditionsForm /> },

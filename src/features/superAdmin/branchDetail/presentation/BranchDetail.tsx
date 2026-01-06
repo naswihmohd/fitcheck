@@ -15,7 +15,6 @@ import { setBranchId } from "../../../login/redux/authSlice";
 import { FiArrowRight } from "react-icons/fi";
 import BranchLoginUsers from "../../branchLoginUsers/presentation/BranchLoginUsers";
 
-
 const BranchDetail = () => {
 
     const [branch, setBranchData] = useState<BranchProps | null>(null);
@@ -174,8 +173,7 @@ const BranchDetail = () => {
                         </div>
 
                         {/* Branch Enable Toggle */}
-                        <BranchActiveButton branch={branch} />
-
+                        <BranchActiveButton branch={branch} setBranch={setBranchData} />
                     </div>
 
                 </div>

@@ -8,7 +8,7 @@ import type { BranchProps } from '../../../addBranch/data/branchTypes';
 import { db } from '../../../../../firebaseConfig';
 import { setBranchData } from '../../../../login/redux/authSlice';
 
-const BranchActiveButton = ({ branch }: { branch: BranchProps }) => {
+const BranchActiveButton = ({ branch, setBranch }: { branch: BranchProps, setBranch?: (branch: BranchProps) => void }) => {
 
     const { branchData } = useSelector((state: RootState) => state.user);
     const dispatch: AppDispatch = useDispatch();
@@ -19,14 +19,15 @@ const BranchActiveButton = ({ branch }: { branch: BranchProps }) => {
             const branchRef = doc(db, "branches", branch.id);
             await updateDoc(branchRef, { isActive: newState });
             dispatch(updateBranchData({ ...branch, isActive: newState }));
-            if(branchData?.id === branch.id) {
+            if (branchData?.id === branch.id) {
                 dispatch(setBranchData({ ...branchData, isActive: newState }));
             }
+            setBranch?.({ ...branch, isActive: newState });
             toast.success(newState ? "Branch enabled successfully!" : "Branch disabled successfully!");
         } catch (error) {
             console.error("Error updating branch:", error);
         }
-    };
+    }
 
     return (
         <div className="flex flex-col items-center gap-1" >
