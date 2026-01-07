@@ -5,6 +5,10 @@ import authReducer from '../../features/login/redux/authSlice';
 import branchesReducer from '../../features/superAdmin/branches/redux/branchesSlice';
 import branchUsersReducer from '../../features/superAdmin/branchLoginUsers/redux/branchUsersSlice';
 import notificationsReducer from '../../features/superAdmin/superAdminNoticeBoard/redux/notificationSlice';
+import branchTutorsReducer from '../../features/branchAdmin/tutorManagement/redux/tutorSlice';
+import branchCoursesReducer from '../../features/branchAdmin/courses/redux/coursesSlice';
+import branchBatchesReducer from '../../features/branchAdmin/batchManagement/redux/batchSlice';
+import branchCourseTutorsReducer from '../../features/branchAdmin/batchManagement/redux/courseTutorsSlice';
 
 
 const persistConfig = {
@@ -21,6 +25,10 @@ const store = configureStore({
     branches: branchesReducer,
     branchUsers: branchUsersReducer,
     notifications: notificationsReducer,
+    branchTutors: branchTutorsReducer,
+    branchCourses: branchCoursesReducer,
+    branchBatches: branchBatchesReducer,
+    branchCourseTutors: branchCourseTutorsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -20,6 +20,9 @@ import TutorNotification from '../../features/superAdmin/superAdminNoticeBoard/p
 import SaleExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/SaleExecutiveNotification.tsx';
 import PlacementExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/PlacementExecutiveNotification.tsx';
 import BranchesNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/BranchesNotification.tsx';
+import TutorManagement from '../../features/branchAdmin/tutorManagement/presentation/TutorManagement.tsx';
+import Courses from '../../features/branchAdmin/courses/presentation/Courses.tsx';
+import BatchManagement from '../../features/branchAdmin/batchManagement/presentation/BatchManagement.tsx';
 
 
 export const router = createBrowserRouter([
@@ -78,8 +81,9 @@ export const router = createBrowserRouter([
       { index: true, element: <div>Branch Dashboard</div> },
       { path: 'sales-executive-management', element: <div>Sales Executive Management</div> },
       { path: 'fee-management', element: <div>Fee Management</div> },
-      { path: 'batch-management', element: <div>Batch Management</div> },
-      { path: 'tutor-management', element: <div>Tutor Management</div> },
+      { path: 'batch-management', element: <Courses /> },
+      { path: 'batch-management/:courseId', element: <BatchManagement /> },
+      { path: 'tutor-management', element: <TutorManagement /> },
       { path: 'student-management', element: <div>Student Management</div> },
       { path: 'placement-management', element: <div>Placement Management</div> },
       { path: 'notice-settings', element: <div>Notice Settings</div> },

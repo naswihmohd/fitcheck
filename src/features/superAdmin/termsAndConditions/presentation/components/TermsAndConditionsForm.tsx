@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { auth, db } from '../../../../../firebaseConfig';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 interface TermsFormData {
     type: 'terms' | 'privacy';
@@ -11,7 +13,7 @@ interface TermsFormData {
 }
 
 const defaultValues: TermsFormData = {
-    type: 'privacy',
+    type: 'terms',
     sections: [
         {
             header: '',
@@ -22,12 +24,15 @@ const defaultValues: TermsFormData = {
 
 const TermsAndConditionsForm: React.FC = () => {
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+    const [originalData, setOriginalData] = useState<TermsFormData | null>(null);
     const {
         register,
         handleSubmit,
         formState: { errors },
         control,
         watch,
+        reset,
     } = useForm<TermsFormData>({
         defaultValues,
     });
@@ -38,12 +43,94 @@ const TermsAndConditionsForm: React.FC = () => {
     });
 
     const selectedType = watch('type');
+    const formValues = watch();
+
+    // Fetch existing terms and conditions data on component mount
+    useEffect(() => {
+        const fetchTermsAndConditions = async () => {
+            try {
+                setFetching(true);
+                const docRef = doc(db, "general", "termsAndConditions");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const termsAndConditions = data.TermsAndConditions;
+
+                    if (termsAndConditions && Array.isArray(termsAndConditions) && termsAndConditions.length > 0) {
+                        const formData = {
+                            type: 'terms' as const,
+                            sections: termsAndConditions,
+                        };
+                        // Store original data for comparison
+                        setOriginalData(formData);
+                        // Reset form with existing data
+                        reset(formData);
+                    } else {
+                        // If no data exists, set original data to default
+                        setOriginalData(defaultValues);
+                    }
+                } else {
+                    // If document doesn't exist, set original data to default
+                    setOriginalData(defaultValues);
+                }
+            } catch (error: any) {
+                console.error('Error fetching terms and conditions:', error);
+                toast.error('Failed to load existing data');
+            } finally {
+                setFetching(false);
+            }
+        };
+
+        fetchTermsAndConditions();
+    }, [reset]);
+
+    // Check if form has changes compared to original data
+    const hasChanges = useMemo(() => {
+        if (!originalData) return false;
+
+        // Compare sections array
+        if (formValues.sections.length !== originalData.sections.length) {
+            return true;
+        }
+
+        // Compare each section
+        return formValues.sections.some((section, index) => {
+            const originalSection = originalData.sections[index];
+            if (!originalSection) return true;
+            return (
+                section.header.trim() !== originalSection.header.trim() ||
+                section.description.trim() !== originalSection.description.trim()
+            );
+        });
+    }, [formValues, originalData]);
 
     const onSubmit = async (data: TermsFormData) => {
         try {
             setLoading(true);
-            // TODO: Implement save logic (Firebase/Firestore)
-            console.log('Form data:', data);
+
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                throw new Error("User not authenticated");
+            }
+
+            // Get reference to the general/termsAndConditions document
+            const docRef = doc(db, "general", "termsAndConditions");
+
+            // Save to Firebase
+            await setDoc(docRef, {
+                TermsAndConditions: data.sections,
+                updatedAt: serverTimestamp(),
+                isActive: true,
+                id: "termsAndConditions",
+            }, { merge: true });
+
+            // Update original data after successful save
+            setOriginalData({
+                type: data.type,
+                sections: data.sections,
+            });
+
             toast.success(`${selectedType === 'terms' ? 'Terms & Conditions' : 'Privacy & Policy'} updated successfully!`);
         } catch (error: any) {
             console.error('Error saving:', error);
@@ -57,10 +144,20 @@ const TermsAndConditionsForm: React.FC = () => {
         append({ header: '', description: '' });
     };
 
+    if (fetching) {
+        return (
+            <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                    <p className="text-sm text-gray-600">Loading terms and conditions data...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-10">
                 {fields.map((field, index) => (
                     <div key={field.id} className="space-y-4">
                         {/* Header Input */}
@@ -104,32 +201,32 @@ const TermsAndConditionsForm: React.FC = () => {
                                 </p>
                             )}
 
+                            {/* Remove Button - Show if more than one section */}
+                            {fields.length > 1 && (
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => remove(index)}
+                                        className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 transition-colors"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Add Another Button - Positioned to the right */}
                             <div className="flex justify-end">
                                 {index === fields.length - 1 && (
                                     <button
                                         type="button"
                                         onClick={handleAddAnother}
-                                        className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap self-end"
+                                        className="px-4 py-2 bg-[#50B1FF] text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap self-end"
                                     >
                                         Add Another
                                     </button>
                                 )}
                             </div>
                         </div>
-
-                        {/* Remove Button - Show if more than one section */}
-                        {fields.length > 1 && (
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => remove(index)}
-                                    className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 transition-colors"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        )}
                     </div>
                 ))}
 
@@ -137,8 +234,8 @@ const TermsAndConditionsForm: React.FC = () => {
                 <div className="pt-4">
                     <button
                         type="submit"
-                        disabled={loading}
-                        className={`w-full px-6 py-3 text-white rounded-md transition-colors font-medium text-sm ${loading
+                        disabled={loading || !hasChanges}
+                        className={`w-full px-6 py-3 text-white rounded-md transition-colors font-medium text-sm ${loading || !hasChanges
                             ? 'opacity-50 cursor-not-allowed bg-gray-800'
                             : 'cursor-pointer bg-primary hover:bg-primary/90'
                             }`}
