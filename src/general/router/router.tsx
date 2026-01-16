@@ -3,26 +3,17 @@ import NotFound from './NotFound';
 import SuperAdminLayout from '../../features/superAdmin/superAdminSidebar/presentation/SuperAdminLayout.tsx';
 import ProtectedRoute from './ProtectedRoute';
 import Login from '../../features/login/presentation/Login';
-import BranchAdminLayout from '../../features/branchAdmin/branchAdminLayout/presentation/BranchAdminLayout.tsx';
 import SuperAdminDashboard from '../../features/superAdmin/superAdminDashboard/presentation/SuperAdminDashboard.tsx';
-import NewAdmission from '../../features/superAdmin/newAdmission/presentation/NewAdmission.tsx';
-import AdmissionPendingStudents from '../../features/superAdmin/newAdmission/presentation/components/AdmissionPendingStudents.tsx';
-import AdmissionCompletedStudents from '../../features/superAdmin/newAdmission/presentation/components/AdmissionCompletedStudents.tsx';
-import Branches from '../../features/superAdmin/branches/presentation/Branches.tsx';
-import TermsAndConditions from '../../features/superAdmin/termsAndConditions/presentation/TermsAndConditions.tsx';
-import TermsAndConditionsForm from '../../features/superAdmin/termsAndConditions/presentation/components/TermsAndConditionsForm.tsx';
-import PrivacyAndPolicyForm from '../../features/superAdmin/termsAndConditions/presentation/components/PrivacyAndPolicyForm.tsx';
-import BranchDetail from '../../features/superAdmin/branchDetail/presentation/BranchDetail.tsx';
-import EditBranchAccessPage from '../../features/superAdmin/branchLoginUsers/presentation/componets/EditBranchAccessPage.tsx';
-import SuperAdminNoticeBoard from '../../features/superAdmin/superAdminNoticeBoard/presentation/SuperAdminNoticeBoard.tsx';
-import StudentsNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/StudentsNotification.tsx';
-import TutorNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/TutorNotification.tsx';
-import SaleExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/SaleExecutiveNotification.tsx';
-import PlacementExecutiveNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/PlacementExecutiveNotification.tsx';
-import BranchesNotification from '../../features/superAdmin/superAdminNoticeBoard/presentation/components/BranchesNotification.tsx';
-import TutorManagement from '../../features/branchAdmin/tutorManagement/presentation/TutorManagement.tsx';
-import Courses from '../../features/branchAdmin/courses/presentation/Courses.tsx';
-import BatchManagement from '../../features/branchAdmin/batchManagement/presentation/BatchManagement.tsx';
+import AttendanceAdminLayout from '../../features/attendanceAdmin/attendanceAdminLayout/presentation/AttendanceAdminLayout.tsx';
+import ShiftManagement from '../../features/attendanceAdmin/shifts/presentation/ShiftManagement.tsx';
+import ShiftDetails from '../../features/attendanceAdmin/shifts/presentation/components/ShiftDetails.tsx';
+import HolydayManagement from '../../features/attendanceAdmin/holyday/presentation/HolydayManagement.tsx';
+import EmployeeManagement from '../../features/attendanceAdmin/employeeManagement/presentation/EmployeeManagement.tsx';
+import AddEmployee from '../../features/attendanceAdmin/employeeManagement/presentation/components/AddEmployee.tsx';
+import EmployeeDetails from '../../features/attendanceAdmin/employeeDetails/presentation/EmployeeDetails.tsx';
+import AllEmployees from '../../features/attendanceAdmin/employeeManagement/presentation/components/AllEmployees.tsx';
+import EmployeeInfo from '../../features/attendanceAdmin/employeeDetails/presentation/components/EmployeeInfo.tsx';
+import Attendance from '../../features/attendanceAdmin/attendance/presentation/Attendance.tsx';
 
 
 export const router = createBrowserRouter([
@@ -39,51 +30,50 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <SuperAdminDashboard />, },
-      {
-        path: 'new-admission', element: <NewAdmission />,
-        children: [
-          { index: true, element: <AdmissionPendingStudents /> },
-          { path: 'completed', element: <AdmissionCompletedStudents /> },
-        ]
-      },
-      {
-        path: 'notice-board', element: <SuperAdminNoticeBoard />,
-        children: [
-          { index: true, element: <StudentsNotification /> },
-          { path: 'tutor', element: <TutorNotification /> },
-          { path: 'sales-executive', element: <SaleExecutiveNotification /> },
-          { path: 'placement-executive', element: <PlacementExecutiveNotification /> },
-          { path: 'branches', element: <BranchesNotification /> },
-        ]
-      },
-      { path: 'branches', element: <Branches /> },
-      { path: 'branches/:branchId', element: <BranchDetail /> },
-      { path: 'branches/:branchId/:userId', element: <EditBranchAccessPage /> },
-      {
-        path: 'terms-condition', element: <TermsAndConditions />, children: [
-          { index: true, element: <TermsAndConditionsForm /> },
-          { path: 'privacy', element: <PrivacyAndPolicyForm /> },
-        ]
-      },
+      { path: 'branches', element: <div>Branches</div> },
+      { path: 'branches/:branchId', element: <div>Branch Detail</div> },
+      { path: 'branches/:branchId/:userId', element: <div>Edit Branch Access</div> },
+      { path: 'terms-condition', element: <div>Terms & Conditions</div> },
       { path: 'reports-analytics', element: <div>Reports & Analytics</div> },
       { path: 'fee-collection', element: <div>Fee Collection</div> },
       { path: 'holidays', element: <div>Holidays</div> },
     ],
   },
   {
-    path: "/branch",
+    path: "/attendance",
     element: (
-      <ProtectedRoute allowedRoles={["branchAdmin", "admin"]}>
-        <BranchAdminLayout />
+      <ProtectedRoute allowedRoles={["attendanceAdmin", "admin"]}>
+        <AttendanceAdminLayout />
       </ProtectedRoute>
     ),
     children: [
       { index: true, element: <div>Branch Dashboard</div> },
+      {
+        path: 'employee-management', element: <EmployeeManagement />,
+        children: [
+          { index: true, element: <AllEmployees /> },
+          { path: 'active', element: <div>Active Employees</div> },
+          { path: 'inactive', element: <div>Inactive Employees</div> },
+        ],
+      },
+      { path: 'employee-management/add-new-employee', element: <AddEmployee /> },
+      { path: 'employee-management/add-new-employee/:employeeId', element: <AddEmployee /> },
+      {
+        path: 'employee-management/:employeeId', element: <EmployeeDetails />,
+        children: [
+          { index: true, element: <div>Live Attendance</div> },
+          { path: 'attendance', element: <Attendance /> },
+          { path: 'salary', element: <div>Salary</div> },
+          { path: 'employee-info', element: <EmployeeInfo /> },
+        ],
+      },
+      { path: 'shifts', element: <ShiftManagement /> },
+      { path: 'shifts/details', element: <ShiftDetails /> },
+      { path: 'holidays', element: <HolydayManagement /> },
       { path: 'sales-executive-management', element: <div>Sales Executive Management</div> },
       { path: 'fee-management', element: <div>Fee Management</div> },
-      { path: 'batch-management', element: <Courses /> },
-      { path: 'batch-management/:courseId', element: <BatchManagement /> },
-      { path: 'tutor-management', element: <TutorManagement /> },
+      { path: 'batch-management', element: <div>Batch Management</div> },
+      { path: 'tutor-management', element: <div>Tutor Management</div> },
       { path: 'student-management', element: <div>Student Management</div> },
       { path: 'placement-management', element: <div>Placement Management</div> },
       { path: 'notice-settings', element: <div>Notice Settings</div> },

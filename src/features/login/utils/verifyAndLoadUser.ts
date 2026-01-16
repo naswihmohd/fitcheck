@@ -1,9 +1,8 @@
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebaseConfig";
-import type { UserProps } from "../../superAdminBranches/data/userTypes";
 import type { AppDispatch } from "../../../general/redux/store";
-import { setBranchData, setBranchId, setUser } from "../redux/authSlice";
-import type { BranchProps } from "../../superAdminBranches/data/branchTypes";
+import { setCompanyId, setUser } from "../redux/authSlice";
+import type { UserProps } from "../data/userTypes";
 
 interface AuthResult {
     status: "success" | "error";
@@ -34,22 +33,26 @@ export async function verifyAndLoadUser(dispatch: AppDispatch): Promise<AuthResu
 
         const userData = userDoc.data() as UserProps;
         dispatch(setUser(userData));
-
+        dispatch(setCompanyId(userData.companyId));
         // 🧭 Role-based navigation logic
         let path = "/";
 
-        if (userData.role === "branchAdmin") {
-            dispatch(setBranchId(userData.branchId));
+        // if (userData.role === "manager") {
+        //     dispatch(setBranchId(userData.companyId));
 
-            const branchDocRef = doc(db, "branches", userData.branchId);
-            const branchDoc = await getDoc(branchDocRef);
-            const branchData = branchDoc.data() as BranchProps;
-            dispatch(setBranchData(branchData));
-            path = "/branch";
+        //     const companyDocRef = doc(db, "companies", userData.companyId);
+        //     const companyDoc = await getDoc(companyDocRef);
+        //     const companyData = companyDoc.data() as CompanyProps;
+        //     dispatch(setCompanyData(companyData));
+        //     path = "/attendance";
 
-        } else if (userData.role === "admin") {
-            path = "/";
-        }
+        // } else if (userData.role === "admin") {
+        //     const companyDocRef = doc(db, "companies", userData.companyId);
+        //     const companyDoc = await getDoc(companyDocRef);
+        //     const companyData = companyDoc.data() as CompanyProps;
+        //     dispatch(setCompanyData(companyData));
+        //     path = "/";
+        // }
 
         return {
             status: "success",

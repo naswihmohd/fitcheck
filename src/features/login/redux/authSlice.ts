@@ -1,17 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { UserProps } from "../data/userTypes";
-import type { BranchProps } from "../../superAdmin/addBranch/data/branchTypes";
+import type { CompanyProps } from "../data/companyTypes";
 
 interface AuthState {
     user: UserProps | null;
-    branchData: BranchProps | null;
+    companyData: CompanyProps | null;
+    companyId: string | null;
     branchId: string | null;
 }
 
 
 const initialState: AuthState = {
     user: null,
-    branchData: null,
+    companyData: null,
+    companyId: null,
     branchId: null,
 };
 
@@ -22,15 +24,19 @@ const userSlice = createSlice({
         setUser: (state, action) => {
             state.user = action.payload;
         },
-        setBranchData: (state, action) => {
-            state.branchData = action.payload;
+        setCompanyData: (state, action) => {
+            state.companyData = action.payload;
         },
         setBranchId: (state, action) => {
             state.branchId = action.payload;
         },
+        setCompanyId: (state, action) => {
+            state.companyId = action.payload;
+        },
         clearUser: (state) => {
             state.user = null;
-            state.branchData = null;
+            state.companyData = null;
+            state.companyId = null;
             state.branchId = null;
         },
     },
@@ -49,5 +55,6 @@ export const {
     setUser,
     clearUser,
     setBranchId,
-    setBranchData,
+    setCompanyData,
+    setCompanyId,
 } = userSlice.actions;

@@ -4,23 +4,10 @@ import type { Timestamp } from "firebase/firestore";
 export interface UserProps {
     id: string;
     name: string;
-    branchId: string | null;
+    companyId: string;
     email: string;
     createdAt: Timestamp;
-    role: "admin" | "branchAdmin";
-    access: Record<AccessKey, boolean>;
+    role: "admin" | "manager";
     keywords: string[];
     isActive: boolean;
 }
-
-export type AccessKey =
-    | "dashboard"
-    | "salesExecutiveManagement"
-    | "feeManagement"
-    | "batchManagement"
-    | "tutorManagement"
-    | "studentManagement"
-    | "placementManagement"
-    | "noticeSettings"
-    | "testPortal"
-    | "appointments";

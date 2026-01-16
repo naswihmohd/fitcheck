@@ -2,19 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from "redux-persist/lib/storage";
 import authReducer from '../../features/login/redux/authSlice';
-import branchesReducer from '../../features/superAdmin/branches/redux/branchesSlice';
-import branchUsersReducer from '../../features/superAdmin/branchLoginUsers/redux/branchUsersSlice';
-import notificationsReducer from '../../features/superAdmin/superAdminNoticeBoard/redux/notificationSlice';
-import branchTutorsReducer from '../../features/branchAdmin/tutorManagement/redux/tutorSlice';
-import branchCoursesReducer from '../../features/branchAdmin/courses/redux/coursesSlice';
-import branchBatchesReducer from '../../features/branchAdmin/batchManagement/redux/batchSlice';
-import branchCourseTutorsReducer from '../../features/branchAdmin/batchManagement/redux/courseTutorsSlice';
+import shiftReducer from '../../features/attendanceAdmin/shifts/redux/shiftSlice';
+import branchHolidaysReducer from '../../features/attendanceAdmin/holyday/redux/holydaySlice';
+import branchEmployeesReducer from '../../features/attendanceAdmin/employeeManagement/redux/employeesSlice';
 
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['branchId', 'user', 'branchData'],
+  whitelist: ['companyId', 'user', 'companyData', 'branchId'],
 };
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
@@ -22,13 +18,9 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 const store = configureStore({
   reducer: {
     user: persistedAuthReducer,
-    branches: branchesReducer,
-    branchUsers: branchUsersReducer,
-    notifications: notificationsReducer,
-    branchTutors: branchTutorsReducer,
-    branchCourses: branchCoursesReducer,
-    branchBatches: branchBatchesReducer,
-    branchCourseTutors: branchCourseTutorsReducer,
+    branchShifts: shiftReducer,
+    branchHolidays: branchHolidaysReducer,
+    branchEmployees: branchEmployeesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

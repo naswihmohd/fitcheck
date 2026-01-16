@@ -1,0 +1,305 @@
+/* Custom Calendar Styles */
+.custom-calendar {
+    border: none !important;
+    background: transparent !important;
+    font-family: 'Inter', sans-serif;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.custom-calendar.react-calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.custom-calendar .react-calendar__navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+.custom-calendar .react-calendar__navigation button {
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.875rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.custom-calendar .react-calendar__navigation button:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.custom-calendar .react-calendar__navigation button:enabled:focus {
+    background: #f3f4f6;
+    outline: none;
+}
+
+.custom-calendar .react-calendar__navigation button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.custom-calendar .react-calendar__navigation__label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    pointer-events: none;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.custom-calendar .react-calendar__month-view {
+    width: 100% !important;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+    margin-bottom: 0.75rem;
+    width: 100% !important;
+}
+
+.custom-calendar .react-calendar__month-view__days {
+    width: 100% !important;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays__weekday {
+    padding: 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+}
+
+.custom-calendar .react-calendar__tile {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0.75rem 0.5rem;
+    background: transparent;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.custom-calendar .react-calendar__tile:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    transform: scale(1.05);
+}
+
+.custom-calendar .react-calendar__tile:enabled:focus {
+    background: #f3f4f6;
+    outline: none;
+    border-color: #d1d5db;
+}
+
+.custom-calendar .react-calendar__tile--now {
+    background: #eff6ff;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.custom-calendar .react-calendar__tile--now:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.custom-calendar .react-calendar__tile--active,
+.custom-calendar .react-calendar__tile--active:enabled:hover,
+.custom-calendar .react-calendar__tile--active:enabled:focus {
+    background: #000094;
+    color: white;
+    font-weight: 700;
+    border-color: #000094;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 94, 0.2), 0 2px 4px -1px rgba(0, 0, 94, 0.1);
+}
+
+.custom-calendar .react-calendar__tile--neighboringMonth {
+    color: #9ca3af;
+    opacity: 0.5;
+}
+
+.custom-calendar .react-calendar__tile--disabled {
+    background: #f9fafb;
+    color: #d1d5db;
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.custom-calendar .react-calendar__tile--disabled:hover {
+    background: #f9fafb;
+    transform: none;
+    border-color: transparent;
+}
+
+/* Selected date styling */
+.custom-calendar .selected-date {
+    background: #000094 !important;
+    color: white !important;
+    font-weight: 700 !important;
+    border-color: #000094 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 94, 0.2), 0 2px 4px -1px rgba(0, 0, 94, 0.1) !important;
+}
+
+.custom-calendar .selected-date:hover {
+    background: #0000b3 !important;
+    border-color: #0000b3 !important;
+}
+
+/* Today date styling (when not selected) */
+.custom-calendar .today-date {
+    background: #eff6ff !important;
+    color: #1e40af !important;
+    font-weight: 600 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .today-date:hover {
+    background: #dbeafe !important;
+    border-color: transparent !important;
+}
+
+/* Attendance Status Styles */
+/* Present - Green */
+.custom-calendar .attendance-present {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .attendance-present:hover {
+    background: #bbf7d0 !important;
+    border-color: transparent !important;
+}
+
+/* Absent - Red */
+.custom-calendar .attendance-absent {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .attendance-absent:hover {
+    background: #fecaca !important;
+    border-color: transparent !important;
+}
+
+/* Half Day - Orange */
+.custom-calendar .attendance-halfday {
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .attendance-halfday:hover {
+    background: #fcd34d !important;
+    border-color: transparent !important;
+}
+
+/* Leave - Purple */
+.custom-calendar .attendance-leave {
+    background: #e9d5ff !important;
+    color: #6b21a8 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .attendance-leave:hover {
+    background: #ddd6fe !important;
+    border-color: transparent !important;
+}
+
+/* Week Off - Blue */
+.custom-calendar .attendance-weekoff {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .attendance-weekoff:hover {
+    background: #bfdbfe !important;
+    border-color: transparent !important;
+}
+
+/* Override status colors when date is selected */
+.custom-calendar .selected-date.attendance-present,
+.custom-calendar .selected-date.attendance-absent,
+.custom-calendar .selected-date.attendance-halfday,
+.custom-calendar .selected-date.attendance-leave,
+.custom-calendar .selected-date.attendance-weekoff {
+    background: #000094 !important;
+    color: white !important;
+    border-color: #000094 !important;
+}
+
+.custom-calendar .selected-date.attendance-present:hover,
+.custom-calendar .selected-date.attendance-absent:hover,
+.custom-calendar .selected-date.attendance-halfday:hover,
+.custom-calendar .selected-date.attendance-leave:hover,
+.custom-calendar .selected-date.attendance-weekoff:hover {
+    background: #0000b3 !important;
+    border-color: #0000b3 !important;
+}
+
+/* Override status colors when date is today (but not selected) */
+.custom-calendar .today-date.attendance-present {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .today-date.attendance-absent {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .today-date.attendance-halfday {
+    background: #fed7aa !important;
+    color: #9a3412 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .today-date.attendance-leave {
+    background: #e9d5ff !important;
+    color: #6b21a8 !important;
+    border-color: transparent !important;
+}
+
+.custom-calendar .today-date.attendance-weekoff {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: transparent !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .custom-calendar .react-calendar__tile {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .custom-calendar .react-calendar__navigation button {
+        min-width: 2rem;
+        height: 2rem;
+    }
+}

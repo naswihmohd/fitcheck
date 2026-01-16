@@ -1,7 +1,6 @@
 // import { createUserWithEmailAndPassword } from "firebase/auth";
 // import { doc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 // import { auth, db } from "../../../firebaseConfig";
-// import type { UserProps } from "../data/userTypes";
 
 // interface CreateAdminParams {
 //   email: string;
@@ -46,7 +45,7 @@
 
 //     // Create Firestore user document in "users" collection
 //     const userDocRef = doc(db, "users", userId);
-//     const userData: UserProps = {
+//     const userData = {
 //       id: userId, // Set id to match the document ID
 //       branchId: null,
 //       email,

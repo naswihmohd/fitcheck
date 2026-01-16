@@ -1,7 +1,7 @@
 {
   "hosting": {
     "source": ".",
-    "site": "edwin-academy",
+    "site": "emplotrackez",
     "ignore": [
       "firebase.json",
       "**/.*",
