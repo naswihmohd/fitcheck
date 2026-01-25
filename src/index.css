@@ -616,3 +616,8 @@ input[type=number] {
   color: #d1d5db;
   cursor: not-allowed;
 }
+
+/* Category shadow styling */
+.category-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

@@ -136,7 +136,7 @@ const RegisterForm = () => {
             };
             await setDoc(companyDocRef, companyData);
 
-            toast.success('Registration successful! Welcome to EmploTrackEZ.');
+            toast.success('Registration successful! Welcome to ShopMateEZ.');
             console.log('Registration successful:', { userId, companyId: companyDocRef.id });
 
             const verifyAndLoadUserResult = await verifyAndLoadUser(dispatch);

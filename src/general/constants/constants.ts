@@ -3,7 +3,7 @@ import logo from '../../assets/images/logo.png'
 export class Constants {
     static readonly META_TITLE_APP = ""
     static readonly META_DESCRIPTION_APP = "";
-    static readonly APP_NAME = 'EmploTrackEZ'
+    static readonly APP_NAME = 'ShopMateEZ'
 
     static readonly APP_LOGO = logo;
     static readonly WEB_VERSION = 'v1.0.6';

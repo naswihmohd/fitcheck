@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import {
     MdMenu,
     MdClose,
-    MdSource,
-    MdPaid,
+    MdAccountCircle,
+    MdPublic,
+    MdPrivacyTip,
     MdSupport,
-    MdAssignmentInd,
+    MdPhoneAndroid,
+    MdLocalShipping,
+    MdSearch,
+    MdPayment,
+    MdFilterAlt,
 } from 'react-icons/md';
 import LogoutButton from '../../login/presentation/components/LogoutButton';
 
@@ -28,12 +33,16 @@ const Settings = () => {
     // Determine active menu from current pathname
     const getActiveMenuId = (): string => {
         const pathname = location.pathname;
-        if (pathname.includes('lead-assign')) return 'lead-assign';
+        if (pathname.includes('account')) return 'account';
+        if (pathname.includes('social-media')) return 'social-media';
+        if (pathname.includes('privacy-policy')) return 'privacy-policy';
         if (pathname.includes('help-support')) return 'help-support';
-        if (pathname.includes('paid-ads')) return 'paid-ad-settings';
-        if (pathname.includes('lead-source')) return 'lead-source';
-        if (pathname.includes('duplicate-leads')) return 'duplicate-leads';
-        return 'lead-assign'; // Default to lead-assign if no match
+        if (pathname.includes('onboarding')) return 'onboarding';
+        if (pathname.includes('delivery')) return 'delivery';
+        if (pathname.includes('keyword-settings')) return 'keyword-settings';
+        if (pathname.includes('payment-gateway')) return 'payment-gateway';
+        if (pathname.includes('perfume-filters')) return 'perfume-filters';
+        return 'account'; // Default to account if no match
     };
 
     const selectedMenu = getActiveMenuId();
@@ -48,12 +57,28 @@ const Settings = () => {
 
     const settingsMenuItems: SettingsMenuItem[] = [
         {
-            id: 'lead-assign',
-            title: 'Lead Assign',
+            id: 'account',
+            title: 'Account Info',
             isAccess: true,
-            icon: MdAssignmentInd,
-            description: 'Assign leads to team members',
-            path: '/branch/settings/lead-assign'
+            icon: MdAccountCircle,
+            description: 'Manage account settings',
+            path: '/settings'
+        },
+        {
+            id: 'social-media',
+            title: 'Social Media',
+            isAccess: true,
+            icon: MdPublic,
+            description: 'Manage social media settings',
+            path: '/settings/social-media'
+        },
+        {
+            id: 'privacy-policy',
+            title: 'Privacy & Policy',
+            isAccess: true,
+            icon: MdPrivacyTip,
+            description: 'Manage privacy policy',
+            path: '/settings/privacy-policy'
         },
         {
             id: 'help-support',
@@ -61,31 +86,47 @@ const Settings = () => {
             isAccess: true,
             icon: MdSupport,
             description: 'Get help and support',
-            path: '/branch/settings/help-support'
+            path: '/settings/help-support'
         },
         {
-            id: 'paid-ad-settings',
-            title: 'Paid Ad Settings',
+            id: 'onboarding',
+            title: 'On-Boarding Screen',
             isAccess: true,
-            icon: MdPaid,
-            description: 'Manage paid advertisement sources',
-            path: '/branch/settings/paid-ads'
+            icon: MdPhoneAndroid,
+            description: 'Manage onboarding screens',
+            path: '/settings/onboarding'
         },
         {
-            id: 'lead-source',
-            title: 'Lead Source',
+            id: 'delivery',
+            title: 'Delivery',
             isAccess: true,
-            icon: MdSource,
-            description: 'Add and manage lead sources',
-            path: '/branch/settings/lead-source'
+            icon: MdLocalShipping,
+            description: 'Manage delivery settings',
+            path: '/settings/delivery'
         },
         {
-            id: 'duplicate-leads',
-            title: 'Duplicate Leads',
+            id: 'keyword-settings',
+            title: 'Keyword Settings',
             isAccess: true,
-            icon: MdSource,
-            description: 'View duplicate leads',
-            path: '/branch/settings/duplicate-leads'
+            icon: MdSearch,
+            description: 'Manage keyword settings',
+            path: '/settings/keyword-settings'
+        },
+        {
+            id: 'payment-gateway',
+            title: 'Payment Gateway',
+            isAccess: true,
+            icon: MdPayment,
+            description: 'Manage payment gateway',
+            path: '/settings/payment-gateway'
+        },
+        {
+            id: 'perfume-filters',
+            title: 'Perfume Filters',
+            isAccess: true,
+            icon: MdFilterAlt,
+            description: 'Manage perfume filters',
+            path: '/settings/perfume-filters'
         },
     ];
 
@@ -93,17 +134,17 @@ const Settings = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex h-full relative"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="flex h-full relative max-h-screen overflow-hidden"
         >
             {/* Mobile Overlay */}
             {isSidebarOpen && (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
                     className="fixed inset-0 z-30 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
@@ -111,9 +152,10 @@ const Settings = () => {
 
             {/* Sidebar */}
             <motion.div
-                initial={{ x: -200 }}
-                animate={{ x: isSidebarOpen ? 0 : -200 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
                 className={`
                     fixed lg:relative z-40 h-full border border-secondary/20 rounded-2xl overflow-hidden
                     ${isSidebarOpen ? 'w-40' : 'w-0'} lg:w-40
@@ -137,6 +179,7 @@ const Settings = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
                             transition={{ delay: 0.2, duration: 0.3 }}
                             className="px-3"
                         >
@@ -182,8 +225,7 @@ const Settings = () => {
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.3 }}
-                className="flex-1"
+                className="flex-1 max-h-screen overflow-y-auto scrollbar-none smooth-scroll"
             >
                 {/* Mobile Header with Toggle Button */}
                 <div className="flex items-center justify-between mb-6 lg:hidden">
@@ -196,17 +238,11 @@ const Settings = () => {
                     </button>
                 </div>
 
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="p-3"
-                    >
-                        <Outlet />
-                    </motion.div>
-                </AnimatePresence>
+                <div
+                    className="px-4"
+                >
+                    <Outlet />
+                </div>
             </motion.div>
         </motion.div>
     );
