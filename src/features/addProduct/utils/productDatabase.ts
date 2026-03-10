@@ -4,18 +4,31 @@ import type { ProductProps, ProductVariant, VariantUnit } from '../../products/d
 import keywordsBuilder from '../../../general/utils/keywordsBuilder';
 import type { AddProductFormData } from '../presentation/AddProduct';
 
+// Derive productPrice from first unit (price is at unit level)
+const getProductPriceFromUnits = (formData: AddProductFormData): number => {
+  const firstVariant = formData.variants[0];
+  if (!firstVariant?.units?.length) return 0;
+  const firstUnit = firstVariant.units[0];
+  return firstUnit?.price ?? 0;
+};
+
+// Derive productStock from sum of all unit stocks
+const getProductStockFromUnits = (formData: AddProductFormData): number => {
+  return formData.variants.reduce((total, variant) => {
+    const variantStock = (variant.units || []).reduce((sum, unit) => sum + (unit.stock ?? 0), 0);
+    return total + variantStock;
+  }, 0);
+};
+
 export const productStoreToDatabase = async (
   formData: AddProductFormData,
   productId?: string // Optional: if provided, update existing product; otherwise create new
 ): Promise<string> => {
   try {
     // Build keywords from product name, brand name, and web link name
-    const keywords = [
-      ...keywordsBuilder(formData.productDetails.productName),
-      ...keywordsBuilder(formData.brandDetails.brandName),
-      ...keywordsBuilder(formData.webLinkName),
-      ...(formData.keywords || []),
-    ];
+    const keywords = keywordsBuilder(formData.productDetails.productName);
+    const productPrice = getProductPriceFromUnits(formData);
+    const productStock = getProductStockFromUnits(formData);
 
     // Reference to the products collection
     const productsCollectionRef = collection(db, 'products');
@@ -63,25 +76,26 @@ export const productStoreToDatabase = async (
         brandDetails: {
           brandId: formData.brandDetails.brandId.trim(),
           brandName: formData.brandDetails.brandName.trim(),
+          brandImage: formData.brandDetails.brandImage || null,
         },
         categoryIds: formData.categoryIds || [],
         taxDetails: {
-          cgst: formData.taxDetails.cgst,
-          sgst: formData.taxDetails.sgst,
           gstPercentage: formData.taxDetails.gstPercentage,
           hsnCode: formData.taxDetails.hsnCode,
         },
         productDetails: {
           productName: formData.productDetails.productName.trim(),
-          productPrice: formData.productDetails.productPrice,
-          productStock: formData.productDetails.productStock,
+          productPrice,
+          productStock,
           productDescription: formData.productDetails.productDescription || [],
           materialCode: formData.productDetails.materialCode?.trim() || '',
           linkUrl: formData.productDetails.linkUrl?.trim() || null,
           returnAvailable: formData.productDetails.returnAvailable,
           reviewAvailable: formData.productDetails.reviewAvailable,
+          cashOnDeliveryAvailable: formData.productDetails.cashOnDeliveryAvailable,
         },
         isTrending: formData.isTrending,
+        keywordIds: (formData.selectedKeywords || []).map((s) => s.id),
         keywords: keywords,
         variants: variantsRecord,
         unitType: formData.unitType,
@@ -120,25 +134,26 @@ export const productStoreToDatabase = async (
         brandDetails: {
           brandId: formData.brandDetails.brandId.trim(),
           brandName: formData.brandDetails.brandName.trim(),
+          brandImage: formData.brandDetails.brandImage || null,
         },
         categoryIds: formData.categoryIds || [],
         taxDetails: {
-          cgst: formData.taxDetails.cgst,
-          sgst: formData.taxDetails.sgst,
           gstPercentage: formData.taxDetails.gstPercentage,
           hsnCode: formData.taxDetails.hsnCode,
         },
         productDetails: {
           productName: formData.productDetails.productName.trim(),
-          productPrice: formData.productDetails.productPrice,
-          productStock: formData.productDetails.productStock,
+          productPrice,
+          productStock,
           productDescription: formData.productDetails.productDescription || [],
           materialCode: formData.productDetails.materialCode?.trim() || '',
           linkUrl: formData.productDetails.linkUrl?.trim() || null,
           returnAvailable: formData.productDetails.returnAvailable,
           reviewAvailable: formData.productDetails.reviewAvailable,
+          cashOnDeliveryAvailable: formData.productDetails.cashOnDeliveryAvailable,
         },
         isTrending: formData.isTrending,
+        keywordIds: (formData.selectedKeywords || []).map((s) => s.id),
         keywords: keywords,
         variants: variantsRecord,
         unitType: formData.unitType,
@@ -166,9 +181,16 @@ export const getProductFromDatabase = async (
       return null;
     }
 
+    const data = productDoc.data();
+    
+    // Handle backward compatibility: ensure brandImage exists
+    if (data.brandDetails && !data.brandDetails.brandImage) {
+      data.brandDetails.brandImage = null;
+    }
+
     return {
       id: productDoc.id,
-      ...productDoc.data(),
+      ...data,
     } as ProductProps;
   } catch (error) {
     console.error('Error fetching product from Firebase:', error);

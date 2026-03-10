@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiEdit2, FiTrash2, FiPower } from 'react-icons/fi';
 import type { ProductProps } from '../../data/productTypes';

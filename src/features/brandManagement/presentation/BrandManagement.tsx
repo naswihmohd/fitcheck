@@ -25,7 +25,7 @@ function BrandManagement() {
   };
   
   const [viewMode, setViewMode] = useState<ViewMode>(() => getViewModeFromUrl(searchParams));
-  const { brands, loading, error, currentFilter, hasMore } = useSelector((state: RootState) => state.brands);
+  const { brands, loading, error, hasMore } = useSelector((state: RootState) => state.brands);
   const dispatch: AppDispatch = useDispatch();
 
   // Sync view mode from URL on mount and when URL changes
@@ -59,7 +59,6 @@ function BrandManagement() {
 
   // Fetch brands when search query changes
   useEffect(() => {
-    if (brands.length > 0 && currentFilter === debouncedSearchQuery) return;
     dispatch(fetchBrands({ params: { searchQuery: debouncedSearchQuery } }));
   }, [debouncedSearchQuery, dispatch]);
 

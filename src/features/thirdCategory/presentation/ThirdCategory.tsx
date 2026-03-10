@@ -141,10 +141,6 @@ function ThirdCategory() {
     }
   }, [error]);
 
-  if (loading) {
-    return <ThreeDotLoading />;
-  }
-
   // Show enable info component if third category is disabled
   if (!categorySettings?.thirdCategoryEnabled && !loading) {
     return <CategoryEnableInfo category="Third" />;

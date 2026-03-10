@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { addDoc, doc, setDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useParams } from 'react-router';
-import { db } from '../../../../firebaseConfig';
+import { db, storage } from '../../../../firebaseConfig';
 import type { FourthCategoryProps } from '../../data/fourthCategoryTypes';
 import keywordsBuilder from '../../../../general/utils/keywordsBuilder';
 import toast from 'react-hot-toast';
@@ -12,6 +13,9 @@ import { HiX } from 'react-icons/hi';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../../../general/redux/store';
 import { addFourthCategory, updateFourthCategory } from '../../redux/fourthCategorySlice';
+import imageCompression from 'browser-image-compression';
+import LoadImage from '../../../../general/components/LoadImage';
+import FormLoading from '../../../../general/components/FormLoading';
 
 interface AddFourthCategoryModalProps {
     isOpen: boolean;
@@ -21,13 +25,17 @@ interface AddFourthCategoryModalProps {
 
 interface FourthCategoryFormData {
     categoryName: string;
-    imageUrl: string | null;
+    image?: FileList;
 }
+
+const MAX_IMAGE_SIZE_KB = 50;
 
 const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen, onClose, fourthCategoryData }) => {
     const { firstCategoryId, secondCategoryId, thirdCategoryId } = useParams<{ firstCategoryId: string; secondCategoryId: string; thirdCategoryId: string }>();
     const [mounted, setMounted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(fourthCategoryData?.imageUrl || null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const isEditMode = !!fourthCategoryData;
     const dispatch: AppDispatch = useDispatch();
 
@@ -35,12 +43,11 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
         register,
         handleSubmit,
         formState: { errors },
-        watch,
         reset,
     } = useForm<FourthCategoryFormData>({
         defaultValues: {
             categoryName: '',
-            imageUrl: null,
+            image: undefined,
         },
         mode: 'onTouched',
     });
@@ -50,20 +57,58 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
     }, []);
 
     useEffect(() => {
+        if (!isOpen) {
+            setPreviewImage(null);
+            setSelectedFile(null);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
         if (isOpen && fourthCategoryData) {
-            // Populate form with existing fourthCategory data for edit mode
             reset({
                 categoryName: fourthCategoryData.categoryName,
-                imageUrl: fourthCategoryData.imageUrl,
+                image: undefined,
             });
+            setPreviewImage(fourthCategoryData.imageUrl || null);
         } else if (isOpen && !fourthCategoryData) {
-            // Reset form for add mode
             reset({
                 categoryName: '',
-                imageUrl: null,
+                image: undefined,
             });
+            setPreviewImage(null);
+            setSelectedFile(null);
         }
     }, [isOpen, fourthCategoryData, reset]);
+
+    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const fileSizeKB = file.size / 1024;
+        if (fileSizeKB > MAX_IMAGE_SIZE_KB) {
+            try {
+                const options = {
+                    maxSizeMB: MAX_IMAGE_SIZE_KB / 1024,
+                    maxWidthOrHeight: 800,
+                    useWebWorker: true,
+                };
+                const compressedFile = await imageCompression(file, options);
+                const compressedSizeKB = compressedFile.size / 1024;
+                if (compressedSizeKB > MAX_IMAGE_SIZE_KB) {
+                    toast.error(`Unable to compress image below ${MAX_IMAGE_SIZE_KB}KB.`);
+                    return;
+                }
+                setSelectedFile(compressedFile);
+                setPreviewImage(URL.createObjectURL(compressedFile));
+            } catch (error) {
+                console.error('Image compression error:', error);
+                toast.error('Failed to compress image.');
+            }
+        } else {
+            setSelectedFile(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
+    };
 
     const onSubmit = async (data: FourthCategoryFormData) => {
         if (!firstCategoryId) {
@@ -84,74 +129,77 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
 
             const fourthCategoriesCollectionRef = collection(db, 'firstCategories', firstCategoryId, 'secondCategories', secondCategoryId, 'thirdCategories', thirdCategoryId, 'fourthCategories');
 
-            // Build keywords from category name only
             const keywords = keywordsBuilder(data.categoryName);
 
-            // Handle imageUrl - set to null if empty
-            const imageUrl = data.imageUrl?.trim() || null;
+            let imageUrl: string | null = fourthCategoryData?.imageUrl || null;
 
             if (isEditMode && fourthCategoryData) {
-                // Update existing fourthCategory
+                if (selectedFile) {
+                    const storageRef = ref(storage, `categories/${fourthCategoryData.id}`);
+                    await uploadBytes(storageRef, selectedFile);
+                    imageUrl = await getDownloadURL(storageRef);
+                }
+
                 const fourthCategoryDocRef = doc(fourthCategoriesCollectionRef, fourthCategoryData.id);
                 const updatedAt = Timestamp.now();
                 const updatedFourthCategoryData = {
                     id: fourthCategoryData.id,
                     categoryName: data.categoryName.trim(),
-                    imageUrl: imageUrl,
-                    keywords: keywords,
-                    firstCategoryId: firstCategoryId,
-                    secondCategoryId: secondCategoryId,
-                    thirdCategoryId: thirdCategoryId,
-                    createdAt: fourthCategoryData.createdAt, // Preserve original creation date
-                    updatedAt: updatedAt,
-                    positionAt: fourthCategoryData.positionAt, // Preserve original position
+                    imageUrl,
+                    keywords,
+                    firstCategoryId,
+                    secondCategoryId,
+                    thirdCategoryId,
+                    createdAt: fourthCategoryData.createdAt,
+                    updatedAt,
+                    positionAt: fourthCategoryData.positionAt,
                 };
-                
+
                 await setDoc(fourthCategoryDocRef, {
                     ...updatedFourthCategoryData,
-                    updatedAt: serverTimestamp(), // Use serverTimestamp for Firestore
+                    updatedAt: serverTimestamp(),
                 }, { merge: true });
 
-                // Update Redux store
                 dispatch(updateFourthCategory({ thirdCategoryId, fourthCategory: updatedFourthCategoryData as FourthCategoryProps }));
-
                 toast.success('Category updated successfully!');
             } else {
-                // Create new fourthCategory with Firebase auto-generated ID
-                const createdAt = Timestamp.now(); // Use current timestamp for Redux
+                const createdAt = Timestamp.now();
                 const updatedAt = Timestamp.now();
                 const positionAt = Timestamp.now();
-                
-                // Save to Firestore with serverTimestamp (will be replaced by Firestore)
+
                 const docRef = await addDoc(fourthCategoriesCollectionRef, {
                     categoryName: data.categoryName.trim(),
-                    imageUrl: imageUrl,
-                    keywords: keywords,
-                    firstCategoryId: firstCategoryId,
-                    secondCategoryId: secondCategoryId,
-                    thirdCategoryId: thirdCategoryId,
+                    imageUrl: null,
+                    keywords,
+                    firstCategoryId,
+                    secondCategoryId,
+                    thirdCategoryId,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
                     positionAt: serverTimestamp(),
                 });
 
-                // Get the auto-generated ID
+                if (selectedFile) {
+                    const storageRef = ref(storage, `categories/${docRef.id}`);
+                    await uploadBytes(storageRef, selectedFile);
+                    imageUrl = await getDownloadURL(storageRef);
+                }
+
+                await setDoc(doc(fourthCategoriesCollectionRef, docRef.id), { id: docRef.id, imageUrl }, { merge: true });
+
                 const newFourthCategoryData = {
                     id: docRef.id,
                     categoryName: data.categoryName.trim(),
-                    imageUrl: imageUrl,
-                    keywords: keywords,
-                    firstCategoryId: firstCategoryId,
-                    secondCategoryId: secondCategoryId,
-                    thirdCategoryId: thirdCategoryId,
-                    createdAt: createdAt,
-                    updatedAt: updatedAt,
-                    positionAt: positionAt,
+                    imageUrl,
+                    keywords,
+                    firstCategoryId,
+                    secondCategoryId,
+                    thirdCategoryId,
+                    createdAt,
+                    updatedAt,
+                    positionAt,
                 };
-
-                // Update Redux store with current timestamp
                 dispatch(addFourthCategory({ thirdCategoryId, fourthCategory: newFourthCategoryData as FourthCategoryProps }));
-
                 toast.success('Category added successfully!');
             }
             onClose();
@@ -181,7 +229,7 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
 
                     {/* Modal Content */}
                     <motion.div
-                        className="z-40 w-full m-2 bg-white lg:m-0 max-w-[500px] flex flex-col min-h-[400px] max-h-[90vh] rounded-[14px] p-5 overflow-y-auto"
+                        className="z-40 w-full m-2 bg-white lg:m-0 max-w-[500px] flex flex-col min-h-[400px] max-h-[90vh] rounded-[14px] overflow-y-auto"
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -50 }}
@@ -189,20 +237,20 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900">
+                        <div className="flex bg-secondary rounded-tl-[14px] items-center justify-between px-5 py-2 border-b border-gray-200 flex-shrink-0">
+                            <h2 className="text-base font-semibold text-white">
                                 {isEditMode ? 'Edit Category' : 'Add New Category'}
                             </h2>
                             <button
                                 onClick={onClose}
                                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                             >
-                                <HiX className="w-5 h-5 text-gray-500" />
+                                <HiX className="w-5 h-5 text-white" />
                             </button>
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 flex-1">
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex p-5 flex-col gap-5 flex-1">
                             {/* Category Name */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -225,40 +273,38 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
                                 )}
                             </div>
 
-                            {/* Image URL */}
+                            {/* Image Upload */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Image URL <span className="text-gray-400 text-xs">(optional)</span>
+                                    Image <span className="text-gray-400 text-xs">(optional, JPG, PNG, max 50KB)</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    {...register('imageUrl', {
-                                        required: false,
-                                        validate: (value) => {
-                                            if (!value || value.trim() === '') {
-                                                return true; // Empty is allowed
-                                            }
-                                            return /^https?:\/\/.+/.test(value) || 'Please enter a valid URL';
-                                        },
-                                    })}
-                                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 transition focus:border-primary outline-none"
-                                    placeholder="https://example.com/image.jpg (optional)"
-                                />
-                                {errors.imageUrl && (
-                                    <p className="mt-1 text-xs text-red-500">{errors.imageUrl.message}</p>
-                                )}
-                                {watch('imageUrl') && watch('imageUrl')?.trim() && (
-                                    <div className="mt-2">
-                                        <img
-                                            src={watch('imageUrl')?.trim() || ''}
-                                            alt="Category preview"
-                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                            }}
-                                        />
+                                <label htmlFor="fourth-category-image-upload" className="cursor-pointer block w-full">
+                                    <div className="w-full max-w-[200px] overflow-hidden border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center hover:border-primary transition-colors">
+                                        {previewImage ? (
+                                            <div className="relative overflow-hidden w-full h-20 flex items-center justify-center">
+                                                <LoadImage
+                                                    index={0}
+                                                    className="object-cover max-h-20 rounded-md"
+                                                    src={previewImage}
+                                                    alt="Category preview"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="text-center">
+                                                <p className="text-sm text-gray-500">Click to upload image</p>
+                                                <p className="text-xs text-gray-400 mt-1">JPG, PNG (Max 50KB)</p>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                    <input
+                                        id="fourth-category-image-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        {...register('image')}
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
                             </div>
 
                             {/* Action Buttons */}
@@ -281,6 +327,7 @@ const AddFourthCategoryModal: React.FC<AddFourthCategoryModalProps> = ({ isOpen,
                             </div>
                         </form>
                     </motion.div>
+                    {isSubmitting && <FormLoading />}
                 </div>
             )}
         </AnimatePresence>,

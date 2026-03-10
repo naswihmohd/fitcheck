@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { ProductProps } from '../../data/productTypes';
-import { useOutletContext } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import { motion } from 'framer-motion';
 import ProductCard from './ProductCard';
 import { FiSearch } from 'react-icons/fi';
@@ -14,6 +14,7 @@ function AllProducts() {
     const { searchQuery } = useOutletContext<{ searchQuery: string }>();
     const { products, loading, error, currentFilter, hasMore } = useSelector((state: RootState) => state.products);
     const dispatch: AppDispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (products.length > 0 && currentFilter === searchQuery) return;
@@ -32,8 +33,7 @@ function AllProducts() {
     }, [error]);
 
     const handleEdit = (product: ProductProps) => {
-        console.log('Edit product:', product);
-        // Navigate to edit page or open edit modal
+        navigate(`/product-management/add-product/${product.id}`);
     };
 
     const handleDelete = (productId: string) => {

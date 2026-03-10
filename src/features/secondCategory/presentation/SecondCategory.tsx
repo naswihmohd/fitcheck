@@ -135,10 +135,6 @@ function SecondCategory() {
     }
   }, [error]);
 
-  if (loading) {
-    return <ThreeDotLoading />;
-  }
-
   // Show enable info component if second category is disabled
   if (!categorySettings?.secondCategoryEnabled && !loading) {
     return <CategoryEnableInfo category="Second" />;

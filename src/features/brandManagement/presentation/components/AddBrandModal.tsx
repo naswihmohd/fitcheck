@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import { addDoc, doc, setDoc, collection, serverTimestamp, Timestamp, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../../../firebaseConfig';
+import { addDoc, doc, setDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { db, storage } from '../../../../firebaseConfig';
 import type { BrandProps } from '../../data/brandTypes';
 import keywordsBuilder from '../../../../general/utils/keywordsBuilder';
 import toast from 'react-hot-toast';
@@ -11,6 +12,10 @@ import { HiX } from 'react-icons/hi';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../../../general/redux/store';
 import { addBrand, updateBrand } from '../../redux/brandSlice';
+import imageCompression from 'browser-image-compression';
+import LoadImage from '../../../../general/components/LoadImage';
+import FormLoading from '../../../../general/components/FormLoading';
+import { checkDuplicateBrandName } from '../../utils/checkDuplicateBrandName';
 
 interface AddBrandModalProps {
     isOpen: boolean;
@@ -20,12 +25,14 @@ interface AddBrandModalProps {
 
 interface BrandFormData {
     brandName: string;
-    imageUrl: string | null;
+    image?: FileList;
 }
 
 const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandData }) => {
     const [mounted, setMounted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(brandData?.imageUrl || null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const isEditMode = !!brandData;
     const dispatch: AppDispatch = useDispatch();
 
@@ -33,12 +40,11 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
         register,
         handleSubmit,
         formState: { errors },
-        watch,
         reset,
     } = useForm<BrandFormData>({
         defaultValues: {
             brandName: '',
-            imageUrl: null,
+            image: undefined,
         },
         mode: 'onTouched',
     });
@@ -48,40 +54,59 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
     }, []);
 
     useEffect(() => {
+        if (!isOpen) {
+            setPreviewImage(null);
+            setSelectedFile(null);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
         if (isOpen && brandData) {
-            // Populate form with existing brand data for edit mode
             reset({
                 brandName: brandData.brandName,
-                imageUrl: brandData.imageUrl,
+                image: undefined,
             });
+            setPreviewImage(brandData.imageUrl || null);
         } else if (isOpen && !brandData) {
-            // Reset form for add mode
             reset({
                 brandName: '',
-                imageUrl: null,
+                image: undefined,
             });
+            setPreviewImage(null);
+            setSelectedFile(null);
         }
     }, [isOpen, brandData, reset]);
 
-    const checkDuplicateBrandName = async (brandName: string, excludeId?: string): Promise<boolean> => {
-        const brandsCollectionRef = collection(db, 'brands');
-        const trimmedName = brandName.trim();
-        
-        // Query for brands with the same name (case-insensitive check)
-        const brandsQuery = query(
-            brandsCollectionRef,
-            where('brandName', '==', trimmedName)
-        );
-        
-        const querySnapshot = await getDocs(brandsQuery);
-        
-        // If editing, exclude the current document
-        if (excludeId) {
-            return querySnapshot.docs.some(doc => doc.id !== excludeId);
+    const MAX_IMAGE_SIZE_KB = 30;
+
+    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const fileSizeKB = file.size / 1024;
+        if (fileSizeKB > MAX_IMAGE_SIZE_KB) {
+            try {
+                const options = {
+                    maxSizeMB: MAX_IMAGE_SIZE_KB / 1024, // 30KB
+                    maxWidthOrHeight: 800,
+                    useWebWorker: true,
+                };
+                const compressedFile = await imageCompression(file, options);
+                const compressedSizeKB = compressedFile.size / 1024;
+                if (compressedSizeKB > MAX_IMAGE_SIZE_KB) {
+                    toast.error(`Unable to compress image below ${MAX_IMAGE_SIZE_KB}KB.`);
+                    return;
+                }
+                setSelectedFile(compressedFile);
+                setPreviewImage(URL.createObjectURL(compressedFile));
+            } catch (error) {
+                console.error('Image compression error:', error);
+                toast.error('Failed to compress image.');
+            }
+        } else {
+            setSelectedFile(file);
+            setPreviewImage(URL.createObjectURL(file));
         }
-        
-        // If creating, check if any document exists
-        return !querySnapshot.empty;
     };
 
     const onSubmit = async (data: BrandFormData) => {
@@ -104,53 +129,54 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
             // Build keywords from brand name only
             const keywords = keywordsBuilder(data.brandName);
 
-            // Handle imageUrl - set to null if empty
-            const imageUrl = data.imageUrl?.trim() || null;
+            let imageUrl: string | null = brandData?.imageUrl || null;
 
             if (isEditMode && brandData) {
-                // Update existing brand
+                // Upload image if selected (path = brandId so it replaces on edit)
+                if (selectedFile) {
+                    const storageRef = ref(storage, `brands/${brandData.id}`);
+                    await uploadBytes(storageRef, selectedFile);
+                    imageUrl = await getDownloadURL(storageRef);
+                }
+
                 const brandDocRef = doc(brandsCollectionRef, brandData.id);
-                
                 const updatedBrandData = {
                     id: brandData.id,
                     brandName: trimmedBrandName,
-                    imageUrl: imageUrl,
-                    keywords: keywords,
-                    createdAt: brandData.createdAt, // Preserve original creation date
+                    imageUrl,
+                    keywords,
+                    createdAt: brandData.createdAt,
                 };
-                
+
                 await setDoc(brandDocRef, updatedBrandData, { merge: true });
-
-                // Update Redux store
                 dispatch(updateBrand({ brand: updatedBrandData as BrandProps }));
-
                 toast.success('Brand updated successfully!');
             } else {
-                // Create new brand with Firebase auto-generated ID
-                const createdAt = Timestamp.now(); // Use current timestamp for Redux
-                
-                // Save to Firestore with serverTimestamp (will be replaced by Firestore)
+                // Create: addDoc first to get id, then upload image with that id as path
+                const createdAt = Timestamp.now();
                 const docRef = await addDoc(brandsCollectionRef, {
                     brandName: trimmedBrandName,
-                    imageUrl: imageUrl,
-                    keywords: keywords,
+                    imageUrl: null,
+                    keywords,
                     createdAt: serverTimestamp(),
                 });
 
-                // Update the document to include the id field
-                await setDoc(docRef, { id: docRef.id }, { merge: true });
+                if (selectedFile) {
+                    const storageRef = ref(storage, `brands/${docRef.id}`);
+                    await uploadBytes(storageRef, selectedFile);
+                    imageUrl = await getDownloadURL(storageRef);
+                }
+
+                await setDoc(docRef, { id: docRef.id, imageUrl }, { merge: true });
 
                 const newBrandData = {
                     id: docRef.id,
                     brandName: trimmedBrandName,
-                    imageUrl: imageUrl,
-                    keywords: keywords,
-                    createdAt: createdAt,
+                    imageUrl,
+                    keywords,
+                    createdAt,
                 };
-
-                // Update Redux store with current timestamp
                 dispatch(addBrand({ brand: newBrandData as BrandProps }));
-
                 toast.success('Brand added successfully!');
             }
             onClose();
@@ -180,7 +206,7 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
 
                     {/* Modal Content */}
                     <motion.div
-                        className="z-40 w-full m-2 bg-white lg:m-0 max-w-[500px] flex flex-col min-h-[400px] max-h-[90vh] rounded-[14px] p-5 overflow-y-auto"
+                        className="z-40 w-full m-2 bg-white lg:m-0 max-w-[500px] flex flex-col min-h-[400px] max-h-[90vh] rounded-[14px] overflow-y-auto"
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -50 }}
@@ -188,22 +214,59 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900">
+                        <div className="flex bg-secondary rounded-tl-[14px] items-center justify-between px-5 py-2 border-b border-gray-200 flex-shrink-0">
+                            <h2 className="text-lg font-semibold text-white">
                                 {isEditMode ? 'Edit Brand' : 'Add New Brand'}
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-1 hover:bg-gray-100  rounded-full transition-colors"
                             >
-                                <HiX className="w-5 h-5 text-gray-500" />
+                                <HiX className="w-5 h-5 text-white" />
                             </button>
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 flex-1">
-                            {/* Brand Name */}
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex p-5 flex-col gap-5 flex-1">
+                           
+
+                            {/* Image Upload */}
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Image <span className="text-gray-400 text-xs">(optional, JPG, PNG, max 30KB, recommended 1:1)</span>
+                                </label>
+                                <label htmlFor="brand-image-upload" className="cursor-pointer block w-full">
+                                    <div className="w-full max-w-[200px] overflow-hidden border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center hover:border-primary transition-colors">
+                                        {previewImage ? (
+                                            <div className="relative overflow-hidden w-full h-20 flex items-center justify-center">
+                                                <LoadImage
+                                                    index={0}
+                                                    className="object-cover max-h-20 rounded-md"
+                                                    src={previewImage}
+                                                    alt="Brand preview"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="text-center">
+                                                <p className="text-sm text-gray-500">Click to upload image</p>
+                                                <p className="text-xs text-gray-400 mt-1">JPG, PNG (Max 30KB)</p>
+                                                <p className="text-xs text-gray-400">Recommended: 1:1</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input
+                                        id="brand-image-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        {...register('image')}
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
+                            </div>
+
+                             {/* Brand Name */}
+                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Brand Name <span className="text-red-500">*</span>
                                 </label>
@@ -221,42 +284,6 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
                                 />
                                 {errors.brandName && (
                                     <p className="mt-1 text-xs text-red-500">{errors.brandName.message}</p>
-                                )}
-                            </div>
-
-                            {/* Image URL */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Image URL <span className="text-gray-400 text-xs">(optional)</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    {...register('imageUrl', {
-                                        required: false,
-                                        validate: (value) => {
-                                            if (!value || value.trim() === '') {
-                                                return true; // Empty is allowed
-                                            }
-                                            return /^https?:\/\/.+/.test(value) || 'Please enter a valid URL';
-                                        },
-                                    })}
-                                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 transition focus:border-primary outline-none"
-                                    placeholder="https://example.com/image.jpg (optional)"
-                                />
-                                {errors.imageUrl && (
-                                    <p className="mt-1 text-xs text-red-500">{errors.imageUrl.message}</p>
-                                )}
-                                {watch('imageUrl') && watch('imageUrl')?.trim() && (
-                                    <div className="mt-2">
-                                        <img
-                                            src={watch('imageUrl')?.trim() || ''}
-                                            alt="Brand preview"
-                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none';
-                                            }}
-                                        />
-                                    </div>
                                 )}
                             </div>
 
@@ -280,6 +307,7 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, brandDat
                             </div>
                         </form>
                     </motion.div>
+                    {isSubmitting && <FormLoading />}
                 </div>
             )}
         </AnimatePresence>,

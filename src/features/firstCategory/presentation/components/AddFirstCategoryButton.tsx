@@ -17,10 +17,10 @@ const AddFirstCategoryButton: React.FC = () => {
         <>
             <button
                 onClick={handleOpenModal}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 font-medium"
+                className="flex text-nowrap items-center text-sm gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 font-medium"
             >
                 <FiPlus className="w-5 h-5" />
-                Add First Category
+                Add 1st Category
             </button>
 
             <AddFirstCategoryModal

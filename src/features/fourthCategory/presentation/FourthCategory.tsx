@@ -145,9 +145,6 @@ function FourthCategory() {
     }
   }, [error]);
 
-  if (loading) {
-    return <ThreeDotLoading />;
-  }
 
   // Show enable info component if fourth category is disabled
   if (!categorySettings?.fourthCategoryEnabled && !loading) {

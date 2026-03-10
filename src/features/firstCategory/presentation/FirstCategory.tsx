@@ -77,10 +77,6 @@ function FirstCategory() {
     }
   }, [error]);
 
-  if (loading) {
-    return <ThreeDotLoading />;
-  }
-
   // Show enable info component if first category is disabled
   if (!categorySettings?.firstCategoryEnabled && !loading) {
     return <CategoryEnableInfo category="First" />;

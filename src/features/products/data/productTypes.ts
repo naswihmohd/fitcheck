@@ -6,22 +6,20 @@ export type ProductProps = {
   webLinkName: string;
   brandDetails: BrandDetail;
   categoryIds: string[];
+  keywordIds?: string[];
   isActive: boolean;
   taxDetails: {
-    cgst: number;
-    sgst: number;
     gstPercentage: number;
     hsnCode: number;
   };
   productDetails: {
     productName: string;
-    productPrice: number;
-    productStock: number;
     productDescription: ProductDescription[];
     materialCode: string;
     linkUrl: string | null;
     returnAvailable: boolean;
     reviewAvailable: boolean;
+    cashOnDeliveryAvailable: boolean;
   };
   createdAt: Timestamp;
   isTrending: boolean;
@@ -34,6 +32,7 @@ export type ProductProps = {
 export interface BrandDetail {
   brandId: string;
   brandName: string;
+  brandImage: string | null;
 }
 
 export type ProductDescription = {
