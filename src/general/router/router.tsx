@@ -26,8 +26,10 @@ import LeadBanner from '../../features/leadBanner/presentation/LeadBanner.tsx';
 import OfferBanner from '../../features/offerBanner/presentation/OfferBanner.tsx';
 import StoreTheme from '../../features/storeTheme/presentation/StoreTheme.tsx';
 import HeroThemes from '../../features/heroThemes/presentation/HeroThemes.tsx';
-
-
+import Orders from '../../features/orders/presentation/Orders.tsx';
+import OrdersTable from '../../features/orders/presentation/components/OrdersTable.tsx';
+import Users from '../../features/users/presentation/Users.tsx';
+import OrderDetail from '../../features/orderDetail/presentation/OrderDetail.tsx';
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -50,8 +52,21 @@ export const router = createBrowserRouter([
           { path: 'offer-banner', element: <OfferBanner /> },
         ]
       },
-      { path: 'users', element: <div>Users</div> },
-      { path: 'order-return', element: <div>Order & Return</div> },
+      { path: 'users', element: <Users /> },
+      { path: 'orders/:orderId', element: <OrderDetail /> },
+      {
+        path: 'orders', element: <Orders />,
+        children: [
+          { index: true, element: <OrdersTable status={null} /> },
+          { path: 'pending', element: <OrdersTable status="pending" /> },
+          { path: 'shipped', element: <OrdersTable status="shipped" /> },
+          { path: 'delivered', element: <OrdersTable status="delivered" /> },
+          { path: 'cancelled', element: <OrdersTable status="cancelled" /> },
+          { path: 'replaced', element: <OrdersTable status="replaced" /> },
+          { path: 'rejected', element: <OrdersTable status="rejected" /> },
+          { path: 'returned', element: <OrdersTable status="returned" /> },
+        ],
+      },
       {
         path: 'product-management', element: <Products />,
         children: [

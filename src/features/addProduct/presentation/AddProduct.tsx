@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import type { Control, UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
+import type { Control, UseFormRegister, FieldErrors, UseFormSetValue, UseFormClearErrors } from 'react-hook-form';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiShoppingBag, HiTag, HiCurrencyRupee, HiCube, HiLink, HiCheckCircle, HiXCircle, HiPlus, HiTrash } from 'react-icons/hi';
@@ -19,12 +19,14 @@ import SelectThirdCategoryModal from './components/SelectThirdCategoryModal';
 import SelectFourthCategoryModal from './components/SelectFourthCategoryModal';
 import SelectKeywordModal from './components/SelectKeywordModal';
 import SelectVariantModal from './components/SelectVariantModal';
+import SelectUnitModal from './components/SelectUnitModal';
 import VariantImageUploader from './components/VariantImageUploader';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebaseConfig';
 
 export interface VariantFormData {
   id: string;
+  variantId: string; // color/variant id from SelectVariantModal
   color: string;
   colorCode: string;
   maxBuyQuantity: number;
@@ -51,6 +53,7 @@ export interface AddProductFormData {
     cashOnDeliveryAvailable: boolean;
   };
   isTrending: boolean;
+  isActive: boolean;
   variants: VariantFormData[];
   unitType: string;
 }
@@ -64,6 +67,7 @@ interface VariantCardProps {
   removeVariant: (index: number) => void;
   generateUnitId: () => string;
   setValue: UseFormSetValue<AddProductFormData>;
+  clearErrors: UseFormClearErrors<AddProductFormData>;
   onVariantFilesChange: (variantId: string, files: File[]) => void;
 }
 
@@ -76,6 +80,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
   removeVariant,
   generateUnitId,
   setValue,
+  clearErrors,
   onVariantFilesChange,
 }) => {
   const { fields: unitFields, append: appendUnit, remove: removeUnit } = useFieldArray({
@@ -84,6 +89,8 @@ const VariantCard: React.FC<VariantCardProps> = ({
   });
 
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
+  const [unitIndexForUnitModal, setUnitIndexForUnitModal] = useState<number | null>(null);
+  const isUnitModalOpen = unitIndexForUnitModal !== null;
 
   const addUnit = () => {
     appendUnit({
@@ -93,10 +100,20 @@ const VariantCard: React.FC<VariantCardProps> = ({
       price: 0,
       stock: 0,
       unit: '',
+      unitId: '',
     });
+    clearErrors(`variants.${variantIndex}.units` as any);
+  };
+
+  const handleUnitConfirm = (unit: { id: string; name: string }) => {
+    if (unitIndexForUnitModal === null) return;
+    setValue(`variants.${variantIndex}.units.${unitIndexForUnitModal}.unit`, unit.name);
+    setValue(`variants.${variantIndex}.units.${unitIndexForUnitModal}.unitId`, unit.id);
+    setUnitIndexForUnitModal(null);
   };
 
   const handleVariantColorConfirm = (color: { id: string; name: string; hexCode: string }) => {
+    setValue(`variants.${variantIndex}.variantId`, color.id);
     setValue(`variants.${variantIndex}.color`, color.name);
     setValue(`variants.${variantIndex}.colorCode`, color.hexCode);
     setIsVariantModalOpen(false);
@@ -169,6 +186,13 @@ const VariantCard: React.FC<VariantCardProps> = ({
           title="Select Variant Color"
         />
 
+        <SelectUnitModal
+          isOpen={isUnitModalOpen}
+          onClose={() => setUnitIndexForUnitModal(null)}
+          onConfirm={handleUnitConfirm}
+          title="Select Unit"
+        />
+
         {/* Max Buy Quantity */}
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -221,6 +245,9 @@ const VariantCard: React.FC<VariantCardProps> = ({
             <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
               <HiCube className="mx-auto h-8 w-8 text-gray-400" />
               <p className="mt-2 text-sm text-gray-600">No units added. Add a unit to set pricing and stock.</p>
+              {(errors.variants?.[variantIndex]?.units as { message?: string } | undefined)?.message && (
+                <p className="mt-2 text-sm text-red-600">{(errors.variants?.[variantIndex]?.units as { message: string }).message}</p>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -244,13 +271,23 @@ const VariantCard: React.FC<VariantCardProps> = ({
                       <label className="mb-1 block text-xs font-medium text-gray-700">
                         Unit <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        {...register(`variants.${variantIndex}.units.${unitIndex}.unit`, {
-                          required: 'Unit is required',
-                        })}
-                        placeholder="e.g., 1kg, 500g, 1L"
-                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 transition focus:border-primary outline-none"
+                      <Controller
+                        name={`variants.${variantIndex}.units.${unitIndex}.unit`}
+                        control={control}
+                        rules={{ required: 'Unit is required' }}
+                        render={({ field }) => (
+                          <button
+                            type="button"
+                            onClick={() => setUnitIndexForUnitModal(unitIndex)}
+                            className="flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 transition hover:border-primary focus:border-primary outline-none text-left"
+                          >
+                            {field.value ? (
+                              <span className="flex-1 min-w-0 truncate">{field.value}</span>
+                            ) : (
+                              <span className="text-gray-400">Click to select unit</span>
+                            )}
+                          </button>
+                        )}
                       />
                       {errors.variants?.[variantIndex]?.units?.[unitIndex]?.unit && (
                         <p className="mt-1 text-xs text-red-600">
@@ -397,6 +434,8 @@ const AddProduct: React.FC = () => {
     watch,
     setValue,
     reset,
+    setError,
+    clearErrors,
   } = useForm<AddProductFormData>({
     defaultValues: {
       webLinkName: '',
@@ -416,6 +455,7 @@ const AddProduct: React.FC = () => {
         cashOnDeliveryAvailable: false,
       },
       isTrending: false,
+      isActive: true,
       selectedKeywords: [],
       variants: [],
       unitType: '',
@@ -454,12 +494,14 @@ const AddProduct: React.FC = () => {
   const addVariant = () => {
     appendVariant({
       id: generateId(),
+      variantId: '',
       color: '',
       colorCode: '#000000',
       maxBuyQuantity: 1,
       productImages: [],
       units: [],
     });
+    clearErrors('variants');
   };
 
   const handleVariantFilesChange = (variantId: string, files: File[]) => {
@@ -494,6 +536,7 @@ const AddProduct: React.FC = () => {
         // Convert variants Record to array format for form
         const variantsArray: VariantFormData[] = Object.values(productData.variants).map((variant) => ({
           id: variant.id,
+          variantId: variant.variantId ?? '',
           color: variant.color,
           colorCode: variant.colorCode,
           maxBuyQuantity: variant.maxBuyQuantity,
@@ -517,6 +560,7 @@ const AddProduct: React.FC = () => {
             cashOnDeliveryAvailable: productData.productDetails.cashOnDeliveryAvailable ?? false,
           },
           isTrending: productData.isTrending,
+          isActive: productData.isActive ?? true,
           selectedKeywords: ((productData as any).keywordIds || []).map((id: string) => ({
             id,
             keywordName: id,
@@ -536,6 +580,28 @@ const AddProduct: React.FC = () => {
   }, [productId, reset, navigate]);
 
   const onSubmit = async (data: AddProductFormData) => {
+    // Validate: at least one variant and each variant must have at least one unit
+    clearErrors('variants');
+    (data.variants || []).forEach((_, i) => clearErrors(`variants.${i}.units` as any));
+
+    if (!data.variants || data.variants.length === 0) {
+      setError('variants', { type: 'manual', message: 'Add at least one variant.' });
+      toast.error('Add at least one variant before submitting.');
+      return;
+    }
+
+    const variantsWithoutUnits: number[] = [];
+    (data.variants || []).forEach((v, i) => {
+      if (!v.units || v.units.length === 0) {
+        variantsWithoutUnits.push(i);
+        setError(`variants.${i}.units` as any, { type: 'minUnits', message: 'Add at least one unit for this variant.' });
+      }
+    });
+    if (variantsWithoutUnits.length > 0) {
+      toast.error('Each variant must have at least one unit.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Upload newly selected images for each variant and merge with existing URLs
@@ -1040,9 +1106,8 @@ const AddProduct: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => onChange(!value)}
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${
-                          value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                        }`}
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                          }`}
                       >
                         {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
                       </button>
@@ -1061,9 +1126,8 @@ const AddProduct: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => onChange(!value)}
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${
-                          value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                        }`}
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                          }`}
                       >
                         {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
                       </button>
@@ -1082,9 +1146,8 @@ const AddProduct: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => onChange(!value)}
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${
-                          value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                        }`}
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                          }`}
                       >
                         {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
                       </button>
@@ -1169,6 +1232,9 @@ const AddProduct: React.FC = () => {
             </button>
           </div>
 
+          {errors.variants?.message && (
+            <p className="mb-2 text-sm text-red-600">{errors.variants.message}</p>
+          )}
           {variantFields.length === 0 ? (
             <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
               <HiCube className="mx-auto h-12 w-12 text-gray-400" />
@@ -1191,6 +1257,7 @@ const AddProduct: React.FC = () => {
                     removeVariant={removeVariant}
                     generateUnitId={generateUnitId}
                     setValue={setValue}
+                    clearErrors={clearErrors}
                     onVariantFilesChange={handleVariantFilesChange}
                   />
                 );
@@ -1207,27 +1274,53 @@ const AddProduct: React.FC = () => {
           </div>
 
           <div className="space-y-5">
-            {/* Is Trending */}
-            <div className="flex items-center gap-3">
-              <Controller
-                name="isTrending"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <button
-                    type="button"
-                    onClick={() => onChange(!value)}
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'
-                      }`}
-                  >
-                    {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
-                  </button>
-                )}
-              />
-              <div>
-                <label className="text-sm font-medium text-gray-700">Mark as Trending</label>
-                <p className="text-xs text-gray-500">Show this product in trending section</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Is Trending */}
+              <div className="flex items-center gap-3">
+                <Controller
+                  name="isTrending"
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <button
+                      type="button"
+                      onClick={() => onChange(!value)}
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                        }`}
+                    >
+                      {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
+                    </button>
+                  )}
+                />
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Mark as Trending</label>
+                  <p className="text-xs text-gray-500">Show this product in trending section</p>
+                </div>
+              </div>
+
+              {/* Is Active */}
+              <div className="flex items-center gap-3">
+                <Controller
+                  name="isActive"
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <button
+                      type="button"
+                      onClick={() => onChange(!value)}
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl transition ${value ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                        }`}
+                    >
+                      {value ? <HiCheckCircle className="h-6 w-6" /> : <HiXCircle className="h-6 w-6" />}
+                    </button>
+                  )}
+                />
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Active Product</label>
+                  <p className="text-xs text-gray-500">Product is visible and available for sale</p>
+                </div>
               </div>
             </div>
+
+            <hr className="my-4 border-gray-200" />
 
             {/* Keywords */}
             <div>

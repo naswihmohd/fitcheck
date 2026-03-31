@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
 import type { ProductProps, ProductVariant, VariantUnit } from '../../products/data/productTypes';
 import keywordsBuilder from '../../../general/utils/keywordsBuilder';
@@ -61,6 +61,7 @@ export const productStoreToDatabase = async (
 
         variantsRecord[variant.id] = {
           id: variant.id,
+          variantId: variant.variantId || undefined,
           color: variant.color,
           colorCode: variant.colorCode,
           maxBuyQuantity: variant.maxBuyQuantity,
@@ -69,8 +70,9 @@ export const productStoreToDatabase = async (
         };
       });
 
-      // Update the product document (preserve isActive status)
-      await setDoc(productDocRef, {
+      // Update the product document.
+      // Use updateDoc so map fields (like variants/units) are replaced, not merged.
+      await updateDoc(productDocRef, {
         id: newProductId,
         webLinkName: formData.webLinkName.trim(),
         brandDetails: {
@@ -99,10 +101,10 @@ export const productStoreToDatabase = async (
         keywords: keywords,
         variants: variantsRecord,
         unitType: formData.unitType,
-        isActive: existingData.isActive, // Preserve existing isActive status
+        isActive: formData.isActive,
         createdAt, // Preserve original creation date
         updatedAt: serverTimestamp(),
-      }, { merge: true });
+      });
     } else {
       // Create new product with auto-generated ID
       const productDocRef = doc(productsCollectionRef);
@@ -120,6 +122,7 @@ export const productStoreToDatabase = async (
 
         variantsRecord[variant.id] = {
           id: variant.id,
+          variantId: variant.variantId || undefined,
           color: variant.color,
           colorCode: variant.colorCode,
           maxBuyQuantity: variant.maxBuyQuantity,
@@ -157,7 +160,7 @@ export const productStoreToDatabase = async (
         keywords: keywords,
         variants: variantsRecord,
         unitType: formData.unitType,
-        isActive: true,
+        isActive: formData.isActive,
         createdAt: serverTimestamp() as Timestamp,
       });
     }

@@ -5,8 +5,6 @@ import {
   MdRefresh,
 } from 'react-icons/md';
 import { RiMenuFold3Line, RiMenuUnfold3Line } from 'react-icons/ri';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../../general/redux/store';
 
 interface NavbarProps {
   className?: string;
@@ -15,10 +13,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ className = '', toggleSidebar, sidebarOpen }: NavbarProps) => {
-
-  const { user, branchData } = useSelector((state: RootState) => state.user);
-
-  const isAdmin = user?.role === "admin";
 
   const [currentTime] = useState(() => {
     const now = new Date();
@@ -72,7 +66,7 @@ const Navbar = ({ className = '', toggleSidebar, sidebarOpen }: NavbarProps) => 
             transition={{ duration: 0.5 }}
             className="flex flex-col px-1 text-secondary"
           >
-            <span className='text-xs'>Hello {isAdmin ? "Admin" : branchData?.branch},</span>
+            <span className='text-xs'>Hello Admin,</span>
             <span className='text-base font-bold'>{getGreetingMessage()}</span>
           </motion.div>
         </div>

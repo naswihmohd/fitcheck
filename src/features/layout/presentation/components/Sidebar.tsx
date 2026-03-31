@@ -51,22 +51,16 @@ const Sidebar = ({ isOpen = true, toggleSidebar, sidebarOpen }: SidebarProps) =>
             path: '/',
         },
         {
-            id: 'store-theme',
-            title: 'Store Theme',
-            icon: MdPalette,
-            path: '/store-theme',
-        },
-        {
             id: 'users',
             title: 'Users',
             icon: HiUsers,
             path: '/users',
         },
         {
-            id: 'order-return',
-            title: 'Order & Return',
+            id: 'orders',
+            title: 'Orders',
             icon: HiShoppingBag,
-            path: '/order-return',
+            path: '/orders',
         },
         {
             id: 'product-management',
@@ -91,6 +85,12 @@ const Sidebar = ({ isOpen = true, toggleSidebar, sidebarOpen }: SidebarProps) =>
             title: 'Coupons',
             icon: HiTicket,
             path: '/coupons',
+        },
+        {
+            id: 'store-theme',
+            title: 'Store Theme',
+            icon: MdPalette,
+            path: '/store-theme',
         },
         {
             id: 'banner-management',

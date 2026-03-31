@@ -42,6 +42,7 @@ export type ProductDescription = {
 
 export interface ProductVariant {
   id: string;
+  variantId?: string; // color/variant id from color selection (SelectVariantModal)
   color: string;
   colorCode: string;
   maxBuyQuantity: number;
@@ -56,6 +57,7 @@ export interface VariantUnit {
   price: number;
   stock: number;
   unit: string;
+  unitId?: string;
 }
 
 export interface RatingModel {

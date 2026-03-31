@@ -14,6 +14,8 @@ import fourthCategoriesReducer from '../../features/fourthCategory/redux/fourthC
 import themeReducer from '../../features/categoryManagement/redux/themeSlice';
 import keywordsReducer from '../../features/keywords/redux/keywordSlice';
 import bannersReducer from '../../features/heroBanner/redux/bannerSlice';
+import ordersReducer from '../../features/orders/redux/orderSlice';
+import customersReducer from '../../features/users/redux/customerSlice';
 
 
 const persistConfig = {
@@ -31,6 +33,8 @@ const store = configureStore({
     brands: brandsReducer,
     colors: colorsReducer,
     units: unitsReducer,
+    orders: ordersReducer,
+    customers: customersReducer,
     general: generalReducer,
     firstCategories: firstCategoriesReducer,
     secondCategories: secondCategoriesReducer,

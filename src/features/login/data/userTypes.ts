@@ -7,7 +7,7 @@ export interface UserProps {
     companyId: string;
     email: string;
     createdAt: Timestamp;
-    role: "admin" | "manager";
+    role: "admin" | "manager" | "user";
     keywords: string[];
     isActive: boolean;
 }
