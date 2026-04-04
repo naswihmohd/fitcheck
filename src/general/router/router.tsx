@@ -30,6 +30,10 @@ import Orders from '../../features/orders/presentation/Orders.tsx';
 import OrdersTable from '../../features/orders/presentation/components/OrdersTable.tsx';
 import Users from '../../features/users/presentation/Users.tsx';
 import OrderDetail from '../../features/orderDetail/presentation/OrderDetail.tsx';
+import AddNewCoupon from '../../features/coupons/presentation/components/AddNewCoupon.tsx';
+import Coupons from '../../features/coupons/presentation/Coupons.tsx';
+import Blogs from '../../features/blogs/presentation/Blogs.tsx';
+import AddBlog from '../../features/blogs/presentation/AddBlog.tsx';
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -95,7 +99,9 @@ export const router = createBrowserRouter([
           { path: ':firstCategoryId/:secondCategoryId/:thirdCategoryId', element: <FourthCategory /> },
         ]
       },
-      { path: 'coupons', element: <div>Coupons</div> },
+      { path: 'coupons', element: <Coupons /> },
+      { path: 'coupons/add', element: <AddNewCoupon /> },
+      { path: 'coupons/add/:couponId', element: <AddNewCoupon /> },
       {
         path: 'banner-management', element: <BannerManagement />,
         children: [
@@ -106,7 +112,9 @@ export const router = createBrowserRouter([
       },
       { path: 'notification', element: <div>Notification</div> },
       { path: 'reports-analytics', element: <div>Reports & Analytics</div> },
-      { path: 'blogs', element: <div>Blogs</div> },
+      { path: 'blogs', element: <Blogs /> },
+      { path: 'blogs/add', element: <AddBlog /> },
+      { path: 'blogs/add/:blogId', element: <AddBlog /> },
       { path: 'contents', element: <div>Contents</div> },
       { path: 'leads', element: <div>Leads</div> },
       {

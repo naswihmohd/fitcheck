@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   FiArrowLeft,
-  FiCalendar,
-  FiCheckCircle,
-  FiMapPin,
   FiPackage,
   FiPhone,
   FiShoppingCart,
@@ -17,16 +14,11 @@ import type { OrdersProps, OrderStatusType } from '../../orders/data/orderTypes'
 import { OrderStatusBadge } from '../../orders/presentation/components/OrderStatusBadge';
 import fetchOrderById from '../utils/fetchOrderById';
 import ThreeDotLoading from '../../../general/components/ThreeDotLoading';
+import OrderStatusButton from '../../orders/presentation/components/OrderStatusButton';
+import OrderAddress from './components/OrderAddress';
+import OrderPayment from './components/OrderPayment';
+import { formatCurrency } from '../../../general/utils/formatCurrency';
 
-function formatCurrency(amount: number): string {
-  if (!Number.isFinite(amount)) return 'N/A';
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
 
 function formatDate(value: unknown): string {
   if (!value) return 'N/A';
@@ -126,7 +118,7 @@ function OrderDetail() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="flex items-center gap-3">
           <button
@@ -139,7 +131,7 @@ function OrderDetail() {
           </button>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-900">Order-{order.orderId}</h1>
+              <h1 className="text-lg font-bold text-gray-900">Order-{order.orderId}</h1>
               <OrderStatusBadge status={order.orderStatus.orderStatus} />
             </div>
             <p className="mt-1 text-sm text-gray-500">
@@ -147,10 +139,10 @@ function OrderDetail() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
-          <FiCheckCircle className="size-4" />
-          Last update: {formatDate(order.orderStatus.updatedAt || order.orderStatus.createdAt)}
-        </div>
+        <OrderStatusButton
+          order={order}
+          setOrder={setOrder}
+        />
       </motion.div>
 
       <motion.div
@@ -237,12 +229,6 @@ function OrderDetail() {
         </section>
 
         <aside className="space-y-6 xl:col-span-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Order Notes</h3>
-            <p className="mt-3 rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
-              {order.orderStatus.message || 'No notes added for this order.'}
-            </p>
-          </div>
 
           <div className="rounded-xl border border-gray-200 bg-white p-5">
             <div className="flex items-center gap-2">
@@ -256,38 +242,9 @@ function OrderDetail() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="flex items-center gap-2">
-              <FiMapPin className="size-4 text-primary" />
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Shipping Address</h3>
-            </div>
-            <div className="mt-3 space-y-1.5 text-sm text-gray-700">
-              <p>{order.deliveryDetails?.street || 'N/A'}</p>
-              {order.deliveryDetails?.apartment ? <p>{order.deliveryDetails.apartment}</p> : null}
-              <p>
-                {order.deliveryDetails?.city || 'N/A'}, {order.deliveryDetails?.state || 'N/A'}{' '}
-                {order.deliveryDetails?.zip || ''}
-              </p>
-            </div>
-          </div>
+          <OrderAddress order={order} />
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="flex items-center gap-2">
-              <FiCalendar className="size-4 text-primary" />
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Payment</h3>
-            </div>
-            <div className="mt-3 space-y-2 text-sm text-gray-700">
-              <p>
-                Method:{' '}
-                <span className="font-medium uppercase">{order.paymentStatus.paymentMethod || 'N/A'}</span>
-              </p>
-              <p>
-                Status:{' '}
-                <span className="font-medium capitalize">{order.paymentStatus.paymentStatus || 'N/A'}</span>
-              </p>
-              <p className="font-semibold text-gray-900">Total: {formatCurrency(order.totalAmount)}</p>
-            </div>
-          </div>
+          <OrderPayment order={order} setOrder={setOrder} />
         </aside>
       </motion.div>
     </div>

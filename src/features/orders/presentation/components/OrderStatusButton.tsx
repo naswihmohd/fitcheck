@@ -2,18 +2,16 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { OrdersProps, OrderStatusType } from '../../data/orderTypes';
 import type { AppDispatch } from '../../../../general/redux/store';
-import { clearOrders, changeOrderStatus, fetchOrders } from '../../redux/orderSlice';
+import { changeOrderStatus } from '../../redux/orderSlice';
 import OrderStatusModal from './OrderStatusModal';
 import { FiEdit2 } from 'react-icons/fi';
 
 const OrderStatusButton = ({
     order,
-    searchQuery,
-    statusFilter,
+    setOrder,
 }: {
     order: OrdersProps;
-    searchQuery: string | null;
-    statusFilter: OrderStatusType | null;
+    setOrder?: (order: OrdersProps) => void;
 }) => {
     const dispatch: AppDispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
@@ -31,16 +29,14 @@ const OrderStatusButton = ({
                 }),
             ).unwrap();
 
-            // Refresh the current filtered list so the changed status immediately reflects in the table view.
-            dispatch(clearOrders());
-            await dispatch(
-                fetchOrders({
-                    params: {
-                        searchQuery: searchQuery || null,
-                        status: statusFilter,
-                    },
-                }),
-            ).unwrap();
+            setOrder?.({
+                ...order,
+                orderStatus: {
+                    ...order.orderStatus,
+                    orderStatus: newStatus,
+                },
+            });
+            
         } finally {
             setIsChanging(false);
         }

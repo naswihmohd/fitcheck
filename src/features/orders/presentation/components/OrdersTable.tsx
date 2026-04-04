@@ -126,8 +126,6 @@ const OrdersTable = ({ status }: { status: OrderStatusType | null }) => {
                                                 <div className="flex justify-end gap-1">
                                                     <OrderStatusButton
                                                         order={order}
-                                                        searchQuery={searchQuery || null}
-                                                        statusFilter={status}
                                                     />
                                                 </div>
                                             </td>

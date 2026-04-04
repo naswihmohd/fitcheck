@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { collection, doc, getDocs, limit, orderBy, query, startAfter, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
 import type { RootState } from '../../../general/redux/store';
-import type { OrdersProps, OrderStatusType } from '../data/orderTypes';
+import type { OrdersProps, OrderStatusType, PaymentStatus } from '../data/orderTypes';
 
 const COLLECTION_NAME = 'orders';
 const LIMIT_NUMBER = 10;
@@ -177,6 +177,43 @@ export const changeOrderStatus = createAsyncThunk(
     },
 );
 
+export const changePaymentStatus = createAsyncThunk(
+    'orders/changePaymentStatus',
+    async (
+        {
+            orderId,
+        }: {
+            orderId: string;
+        },
+        { rejectWithValue },
+    ) => {
+        try {
+            const now = Timestamp.now();
+            const paymentStatusUpdate: Pick<PaymentStatus, 'paymentStatus' | 'paidAt' | 'message' | 'failedAt'> = {
+                paymentStatus: 'completed',
+                paidAt: now,
+                message: null,
+                failedAt: null,
+            };
+
+            await updateDoc(doc(db, COLLECTION_NAME, orderId), {
+                'paymentStatus.paymentStatus': paymentStatusUpdate.paymentStatus,
+                'paymentStatus.paidAt': paymentStatusUpdate.paidAt,
+                'paymentStatus.message': paymentStatusUpdate.message,
+                'paymentStatus.failedAt': paymentStatusUpdate.failedAt,
+            });
+
+            return { orderId, paymentStatusUpdate };
+        } catch (error) {
+            return rejectWithValue(
+                (error as Error)?.message
+                    ? `Failed to update payment status: ${(error as Error).message}`
+                    : 'Failed to update payment status',
+            );
+        }
+    },
+);
+
 const ordersSlice = createSlice({
     name: 'orders',
     initialState,
@@ -266,6 +303,25 @@ const ordersSlice = createSlice({
                 state.loading = false;
                 state.error =
                     (action.payload as string) || action.error.message || 'Failed to update order status';
+            });
+
+        builder
+            .addCase(changePaymentStatus.fulfilled, (state, action) => {
+                const { orderId, paymentStatusUpdate } = action.payload;
+                const index = state.orders.findIndex((o) => o.orderId === orderId);
+                if (index !== -1) {
+                    state.orders[index] = {
+                        ...state.orders[index],
+                        paymentStatus: {
+                            ...state.orders[index].paymentStatus,
+                            ...paymentStatusUpdate,
+                        },
+                    };
+                }
+            })
+            .addCase(changePaymentStatus.rejected, (state, action) => {
+                state.error =
+                    (action.payload as string) || action.error.message || 'Failed to update payment status';
             });
     },
 });

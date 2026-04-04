@@ -33,7 +33,7 @@ const Login: React.FC = () => {
                         <div className='text-center bg-white/10 backdrop-blur-md px-4 py-6 rounded-2xl'>
                             <img src={logo} alt="Edwin Academy logo" className="max-w-[159px] mx-auto w-full" />
                             <h1 className="text-xl pt-4 font-semibold text-secondary">
-                                Welcome to Edwin Academy!
+                                Welcome to ShopMateEZ!
                             </h1>
                             <p className='font-semibold text-secondary text-base'>login to explore</p>
                         </div>

@@ -16,6 +16,8 @@ import keywordsReducer from '../../features/keywords/redux/keywordSlice';
 import bannersReducer from '../../features/heroBanner/redux/bannerSlice';
 import ordersReducer from '../../features/orders/redux/orderSlice';
 import customersReducer from '../../features/users/redux/customerSlice';
+import couponsReducer from '../../features/coupons/redux/couponSlice';
+import blogsReducer from '../../features/blogs/redux/blogSlice';
 
 
 const persistConfig = {
@@ -43,6 +45,8 @@ const store = configureStore({
     theme: themeReducer,
     keywords: keywordsReducer,
     banners: bannersReducer,
+    coupons: couponsReducer,
+    blogs: blogsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
