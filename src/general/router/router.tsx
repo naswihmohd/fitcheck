@@ -6,7 +6,6 @@ import Layout from '../../features/layout/presentation/Layout.tsx';
 import Dashboard from '../../features/dashboard/presentation/Dashboard.tsx';
 import AddProduct from '../../features/addProduct/presentation/AddProduct.tsx';
 import Products from '../../features/products/presentation/Products.tsx';
-import AllProducts from '../../features/products/presentation/components/AllProducts.tsx';
 import BrandManagement from '../../features/brandManagement/presentation/BrandManagement.tsx';
 import VariantManagement from '../../features/variantManagement/presentation/VariantManagement.tsx';
 import ColorManagement from '../../features/colorManagement/presentation/ColorManagement.tsx';
@@ -34,6 +33,9 @@ import AddNewCoupon from '../../features/coupons/presentation/components/AddNewC
 import Coupons from '../../features/coupons/presentation/Coupons.tsx';
 import Blogs from '../../features/blogs/presentation/Blogs.tsx';
 import AddBlog from '../../features/blogs/presentation/AddBlog.tsx';
+import ProductCardThemes from '../../features/productsThemes/presentation/ProductCardThemes.tsx';
+import ListProducts from '../../features/products/presentation/components/ListProducts.tsx';
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -74,12 +76,14 @@ export const router = createBrowserRouter([
       {
         path: 'product-management', element: <Products />,
         children: [
-          { index: true, element: <AllProducts /> },
-          { path: 'active', element: <div>Active Products</div> },
-          { path: 'inactive', element: <div>Inactive Products</div> },
-          { path: 'trending', element: <div>Trending Products</div> },
+          { index: true, element: <ListProducts  /> },
+          { path: 'active', element: <ListProducts status={true} /> },
+          { path: 'inactive', element: <ListProducts status={false} /> },
+          { path: 'trending', element: <ListProducts isTrending={true} /> },
         ],
       },
+      { path: 'product-management/product-themes', element: <ProductCardThemes from={"all-products"} /> },
+      { path: 'product-management/trending/product-themes', element: <ProductCardThemes from={"trending"} /> },
       { path: 'product-management/add-product', element: <AddProduct /> },
       { path: 'product-management/add-product/:productId', element: <AddProduct /> },
       {

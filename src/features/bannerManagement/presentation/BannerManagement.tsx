@@ -1,28 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { NavLink, Outlet } from 'react-router';
 import { FiInfo } from 'react-icons/fi';
-import type { AppDispatch, RootState } from '../../../general/redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchThemeData } from '../../categoryManagement/redux/themeSlice';
-
+import type { RootState } from '../../../general/redux/store';
+import { useSelector } from 'react-redux';
 function BannerManagement() {
   const [showExplanation, setShowExplanation] = useState(true);
 
-  const { storeTheme, error, loading } = useSelector((state: RootState) => state.theme);
-  const dispatch: AppDispatch = useDispatch();
-
-  useEffect(() => {
-    if (!storeTheme) {
-      dispatch(fetchThemeData());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      console.error(error);
-    }
-  }, [error]);
+  const { storeTheme, loading } = useSelector((state: RootState) => state.theme);
 
 
   const tabs = [

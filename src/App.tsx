@@ -10,12 +10,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setBranchId, setCompanyData, setCompanyId, setUser } from './features/login/redux/authSlice';
 import type { UserProps } from './features/login/data/userTypes';
 import type { CompanyProps } from './features/login/data/companyTypes';
+import { fetchThemeData } from './features/categoryManagement/redux/themeSlice';
 
 function App() {
 
   const dispatch: AppDispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const { companyId, branchId, companyData } = useSelector((state: RootState) => state.user);
+  const { error } = useSelector((state: RootState) => state.theme);
+
+  // Load settings from Redux on mount
+  useEffect(() => {
+    dispatch(fetchThemeData());
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+    }
+  }, [error]);
 
   useEffect(() => {
     if (!auth.currentUser?.uid) {
@@ -95,7 +108,7 @@ function App() {
     const initialBranch = Object.values(branches).find(
       (branch) => branch.isInitialBranch === true
     );
-    
+
     if (initialBranch) {
       dispatch(setBranchId(initialBranch.id));
     }

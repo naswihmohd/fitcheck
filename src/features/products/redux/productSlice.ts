@@ -1,5 +1,15 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { collection, getDocs, query, orderBy, limit, startAfter, where } from 'firebase/firestore';
+import {
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    limit,
+    startAfter,
+    where,
+    doc,
+    deleteDoc,
+} from 'firebase/firestore';
 import { db } from '../../../firebaseConfig';
 import type { RootState } from '../../../general/redux/store';
 import type { ProductProps } from '../data/productTypes';
@@ -27,10 +37,12 @@ const initialState: ProductsState = {
 
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
-    async ({ params }: { params: { searchQuery: string | null } }, { getState }) => {
+    async ({ params }: { params: { searchQuery: string | null; status?: boolean | null; isTrending?: boolean | null } }, { getState }) => {
         const searchQuery = params?.searchQuery || null;
         const filterAndQueryTerm = searchQuery || null;
-        
+        const status = params?.status;
+        const isTrending = params?.isTrending || null;
+        const filterByStatus = typeof status === 'boolean';
         try {
             const state = getState() as RootState & { products?: ProductsState };
             const productsState = state.products || initialState;
@@ -43,6 +55,8 @@ export const fetchProducts = createAsyncThunk(
 
             const productsQuery = query(
                 productsCollectionRef,
+                ...(isTrending ? [where('isTrending', '==', isTrending)] : []),
+                ...(filterByStatus ? [where('isActive', '==', status)] : []),
                 ...(searchQuery ? [where("keywords", "array-contains", searchQuery)] : []),
                 orderBy("createdAt", "desc"),
                 ...(lastVisible ? [startAfter(lastVisible)] : []),
@@ -65,6 +79,18 @@ export const fetchProducts = createAsyncThunk(
 
         } catch (error) {
             throw new Error('Failed to fetch products: ' + (error as Error).message);
+        }
+    }
+);
+
+export const deleteProduct = createAsyncThunk(
+    'products/deleteProduct',
+    async (productId: string) => {
+        try {
+            await deleteDoc(doc(db, COLLECTION_NAME, productId));
+            return productId;
+        } catch (error) {
+            throw new Error('Failed to delete product: ' + (error as Error).message);
         }
     }
 );
@@ -135,6 +161,9 @@ const productsSlice = createSlice({
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'Failed to fetch products';
+            })
+            .addCase(deleteProduct.fulfilled, (state, action) => {
+                state.products = state.products.filter(p => p.id !== action.payload);
             })
     },
 });

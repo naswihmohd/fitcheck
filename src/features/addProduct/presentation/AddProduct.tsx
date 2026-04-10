@@ -11,7 +11,6 @@ import { productStoreToDatabase, getProductFromDatabase } from '../utils/product
 import { compressImage } from '../utils/compressImage';
 import { addProduct, updateProduct } from '../../products/redux/productSlice';
 import type { AppDispatch, RootState } from '../../../general/redux/store';
-import { fetchThemeData } from '../../categoryManagement/redux/themeSlice';
 import SelectBrandModal from './components/SelectBrandModal';
 import SelectFirstCategoryModal from './components/SelectFirstCategoryModal';
 import SelectSecondCategoryModal from './components/SelectSecondCategoryModal';
@@ -510,13 +509,6 @@ const AddProduct: React.FC = () => {
       [variantId]: files,
     }));
   };
-
-  // Load theme/category settings when not present
-  useEffect(() => {
-    if (!storeTheme) {
-      dispatch(fetchThemeData());
-    }
-  }, [dispatch, storeTheme]);
 
   // Load product data when in edit mode
   useEffect(() => {

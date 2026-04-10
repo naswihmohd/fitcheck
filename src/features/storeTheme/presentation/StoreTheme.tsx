@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import {
@@ -10,9 +10,8 @@ import {
   MdViewQuilt,
   MdShoppingBag,
 } from 'react-icons/md';
-import type { AppDispatch, RootState } from '../../../general/redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchThemeData } from '../../categoryManagement/redux/themeSlice';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../../general/redux/store';
 
 interface StoreThemeMenuItem {
   id: string;
@@ -24,21 +23,7 @@ interface StoreThemeMenuItem {
 }
 
 const StoreTheme = () => {
-  const { storeTheme, error } = useSelector((state: RootState) => state.theme);
-  const dispatch: AppDispatch = useDispatch();
-
-  // Load settings from Redux on mount
-  useEffect(() => {
-    if (!storeTheme) {
-      dispatch(fetchThemeData());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      console.error(error);
-    }
-  }, [error]);
+  const { storeTheme } = useSelector((state: RootState) => state.theme);
 
   const location = useLocation();
   const navigate = useNavigate();

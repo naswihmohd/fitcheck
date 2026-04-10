@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+
 import { motion } from 'framer-motion';
 import { FiSettings } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchThemeData, updateCategorySettings } from '../../redux/themeSlice';
+import { updateCategorySettings } from '../../redux/themeSlice';
 import type { RootState, AppDispatch } from '../../../../general/redux/store';
 import type { CategorySettingsProps } from '../../data/categoryTypes';
 
@@ -58,21 +58,8 @@ const CategoryToggle: React.FC<CategoryToggleProps> = ({
 
 const CategorySettings: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
-    const { storeTheme, loading, error } = useSelector((state: RootState) => state.theme);
+    const { storeTheme, loading } = useSelector((state: RootState) => state.theme);
     const categorySettings = storeTheme?.categorySettings;
-
-    // Load settings from Redux on mount
-    useEffect(() => {
-        if (!categorySettings) {
-            dispatch(fetchThemeData());
-        }
-    }, []);
-
-    useEffect(() => {
-        if (error) {
-            console.error(error);
-        }
-    }, [error]);
 
     // Default settings if not loaded yet
     const settings: CategorySettingsProps = categorySettings || {

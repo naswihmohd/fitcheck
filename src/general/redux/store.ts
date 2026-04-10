@@ -23,10 +23,12 @@ import blogsReducer from '../../features/blogs/redux/blogSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['companyId', 'user', 'companyData', 'branchId'],
+  whitelist: ['companyId', 'user', 'companyData', 'branchId', 'storeTheme'],
 };
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
+
+const persistedThemeReducer = persistReducer(persistConfig, themeReducer);
 
 const store = configureStore({
   reducer: {
@@ -42,7 +44,7 @@ const store = configureStore({
     secondCategories: secondCategoriesReducer,
     thirdCategories: thirdCategoriesReducer,
     fourthCategories: fourthCategoriesReducer,
-    theme: themeReducer,
+    theme: persistedThemeReducer,
     keywords: keywordsReducer,
     banners: bannersReducer,
     coupons: couponsReducer,

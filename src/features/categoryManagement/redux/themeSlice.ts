@@ -69,8 +69,14 @@ const themeSlice = createSlice({
         updateCategorySettingsLocal: (state, action: { payload: CategorySettingsProps }) => {
             state.storeTheme = { ...state.storeTheme, categorySettings: action.payload } as StoreThemeProps;
         },
-        updateHeroThemeLocal: (state, action: { payload: StoreThemeProps['heroTheme']}) => {
+        updateHeroThemeLocal: (state, action: { payload: StoreThemeProps['heroTheme'] }) => {
             state.storeTheme = { ...state.storeTheme, heroTheme: action.payload } as StoreThemeProps;
+        },
+        updateProductCardThemeLocal: (state, action: { payload: StoreThemeProps['productCardTheme'] }) => {
+            state.storeTheme = { ...state.storeTheme, productCardTheme: action.payload } as StoreThemeProps;
+        },
+        updateTrendingProductCardThemeLocal: (state, action: { payload: StoreThemeProps['trendingProductCardTheme'] }) => {
+            state.storeTheme = { ...state.storeTheme, trendingProductCardTheme: action.payload } as StoreThemeProps;
         },
     },
     extraReducers: builder => {
@@ -104,5 +110,10 @@ const themeSlice = createSlice({
     },
 });
 
-export const { clearThemeData, updateCategorySettingsLocal, updateHeroThemeLocal } = themeSlice.actions;
+export const { clearThemeData,
+    updateCategorySettingsLocal,
+    updateHeroThemeLocal,
+    updateProductCardThemeLocal,
+    updateTrendingProductCardThemeLocal,
+} = themeSlice.actions;
 export default themeSlice.reducer;
