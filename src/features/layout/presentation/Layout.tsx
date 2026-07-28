@@ -11,7 +11,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen pb-24 lg:pb-0 bg-gray-50">
       {/* Desktop Sidebar — hidden on mobile */}
       <div className="hidden lg:block lg:static">
         <Sidebar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} isOpen={sidebarOpen} />
