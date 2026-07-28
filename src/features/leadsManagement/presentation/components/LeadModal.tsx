@@ -11,6 +11,9 @@ import {
   setDoc,
   serverTimestamp,
   Timestamp,
+  getDocs,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '../../../../firebaseConfig';
 import { useDispatch } from 'react-redux';
@@ -119,6 +122,22 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
     setIsSubmitting(true);
     try {
       const leadsCollectionRef = collection(db, 'leads');
+
+      if (!isEditMode) {
+        const trimmedName = data.name.trim();
+        const nameQuery = query(leadsCollectionRef, where('name', '==', trimmedName));
+        const nameSnap = await getDocs(nameQuery);
+
+        const nameMatch = nameSnap.docs.some(
+          (doc) => doc.data().name?.trim().toLowerCase() === trimmedName.toLowerCase()
+        );
+        if (nameMatch) {
+          toast.error('A lead with this name already exists');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const targetLeadId = isEditMode && lead ? lead.id : doc(leadsCollectionRef).id;
       const allKeywords = keywordsBuilder(data.name);
 
