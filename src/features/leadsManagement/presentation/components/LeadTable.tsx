@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { FiEdit2, FiTrash2, FiExternalLink, FiUser, FiRefreshCw } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiUser, FiRefreshCw } from 'react-icons/fi';
 import type { LeadProps } from '../../data/leadTypes';
-import { LEAD_STATUS_OPTIONS, LEAD_TYPE_OPTIONS } from '../../data/leadTypes';
+import { LEAD_ADDED_BY_OPTIONS, LEAD_STATUS_OPTIONS, LEAD_TYPE_OPTIONS } from '../../data/leadTypes';
 import { useDispatch } from 'react-redux';
 import { removeLead } from '../../redux/leadSlice';
 import { removeFollowUp } from '../../../followUps/redux/followUpSlice';
@@ -12,6 +12,8 @@ import toast from 'react-hot-toast';
 import ConfirmModal from '../../../../general/components/ConfirmModal';
 import LeadCard from './LeadCard';
 import ChangeStatusModal from './ChangeStatusModal';
+import LeadContactActions from './LeadContactActions';
+import { getCallHref, getWhatsAppHref, getLinkHref } from '../utils/leadContactLinks';
 
 interface LeadTableProps {
   leads: LeadProps[];
@@ -20,6 +22,11 @@ interface LeadTableProps {
 
 function getLeadTypeLabel(type: string) {
   return LEAD_TYPE_OPTIONS.find((o) => o.value === type)?.label ?? type;
+}
+
+function getAddedByLabel(addedBy?: string) {
+  if (!addedBy) return null;
+  return LEAD_ADDED_BY_OPTIONS.find((o) => o.value === addedBy)?.label ?? addedBy;
 }
 
 function getLeadStatusLabel(lead: LeadProps) {
@@ -109,6 +116,9 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
                 Type
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Added By
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Status
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -152,15 +162,42 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                  {lead.phoneNumber || '—'}
+                  {getCallHref(lead.phoneNumber) ? (
+                    <a
+                      href={getCallHref(lead.phoneNumber)!}
+                      className="text-blue-600 hover:underline"
+                      title="Call"
+                    >
+                      {lead.phoneNumber}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                  {lead.whatsappNumber || '—'}
+                  {getWhatsAppHref(lead.whatsappNumber) ? (
+                    <a
+                      href={getWhatsAppHref(lead.whatsappNumber)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 hover:underline"
+                      title="WhatsApp"
+                    >
+                      {lead.whatsappNumber}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700">
                     {getLeadTypeLabel(lead.leadType)}
                   </span>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                  {getAddedByLabel(lead.addedBy) || (
+                    <span className="text-gray-300">—</span>
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <button
@@ -186,12 +223,13 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
                 <td className="whitespace-nowrap px-6 py-4">
                   {lead.link ? (
                     <a
-                      href={lead.link}
+                      href={getLinkHref(lead.link)!}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                      className="inline-flex items-center gap-1 text-sm text-violet-600 hover:underline"
+                      title="Open link"
                     >
-                      Open <FiExternalLink className="h-3.5 w-3.5" />
+                      Open
                     </a>
                   ) : (
                     <span className="text-sm text-gray-300">—</span>
@@ -210,6 +248,7 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-1">
+                    <LeadContactActions lead={lead} size="sm" />
                     <button
                       onClick={() => setStatusLead(lead)}
                       className="rounded-lg p-2 text-orange-600 transition-all duration-200 hover:bg-orange-50"

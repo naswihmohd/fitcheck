@@ -1,4 +1,4 @@
-import logo from '../../assets/images/logo.png'
+import logo from '/apple-touch-icon.png'
 
 export class Constants {
     static readonly META_TITLE_APP = 'OnRevv Leads Management';

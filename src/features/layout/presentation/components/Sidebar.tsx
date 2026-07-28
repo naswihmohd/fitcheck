@@ -45,7 +45,10 @@ const Sidebar = ({ isOpen = true, toggleSidebar, sidebarOpen }: SidebarProps) =>
                     transition={{ delay: 0.1, duration: 0.3 }}
                     className="px-3 py-4 flex items-center justify-between relative"
                 >
-                    <img src={Constants.APP_LOGO} alt="logo" className="max-w-[159px] mx-auto w-full" />
+                    {/* <img src={Constants.APP_LOGO} alt="logo" className="max-w-[159px] mx-auto w-full" /> */}
+                    <div className='text-center mb-8 flex items-center justify-center'>
+                        {/* <p className='text-base font-medium'>OnRevv </p> */}
+                    </div>
                     <button
                         onClick={toggleSidebar}
                         className={`${!sidebarOpen && 'hidden'} absolute right-4 top-4 text-gray-600 hover:text-gray-900 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors p-2`}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FiDownload, FiX } from 'react-icons/fi';
-import { Constants } from '../../general/constants/constants';
+import { Constants } from '../../../../general/constants/constants';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

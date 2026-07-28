@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { FiX } from 'react-icons/fi';
 import {
   collection,
@@ -17,8 +19,10 @@ import { addLead, updateLead } from '../../redux/leadSlice';
 import { updateFollowUp } from '../../../followUps/redux/followUpSlice';
 import { updateGroupLead } from '../../../groups/redux/groupSlice';
 import {
+  LEAD_ADDED_BY_OPTIONS,
   LEAD_STATUS_OPTIONS,
   LEAD_TYPE_OPTIONS,
+  type LeadAddedBy,
   type LeadProps,
   type LeadStatus,
   type LeadType,
@@ -33,6 +37,7 @@ interface LeadFormData {
   link: string;
   leadType: LeadType;
   area: string;
+  addedBy: LeadAddedBy | '';
   status: LeadStatus;
   customStatus: string;
   nextFollowUpDate: string;
@@ -52,6 +57,7 @@ const defaultValues: LeadFormData = {
   link: '',
   leadType: 'direct',
   area: '',
+  addedBy: '',
   status: 'not_contacted',
   customStatus: '',
   nextFollowUpDate: '',
@@ -75,6 +81,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
     watch,
@@ -96,6 +103,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
           link: lead.link || '',
           leadType: lead.leadType || 'direct',
           area: lead.area || '',
+          addedBy: lead.addedBy || '',
           status: lead.status || 'not_contacted',
           customStatus: lead.customStatus || '',
           nextFollowUpDate: formatDateForInput(lead.nextFollowUpDate),
@@ -133,6 +141,9 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
         notes: data.notes.trim(),
         keywords: allKeywords,
         updatedAt: serverTimestamp(),
+        ...(isEditMode
+          ? {}
+          : { addedBy: data.addedBy as LeadAddedBy }),
       };
 
       if (isEditMode && lead) {
@@ -228,36 +239,68 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
 
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-                    Phone Number <span className="text-red-500">*</span>
+                    Phone Number
                   </label>
-                  <input
-                    type="tel"
-                    {...register('phoneNumber', {
-                      required: 'Phone number is required',
-                    })}
-                    placeholder="e.g. +91 98765 43210"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
+                  <Controller
+                    name="phoneNumber"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <PhoneInput
+                        country="in"
+                        value={value?.replace(/^\+/, '') || ''}
+                        onChange={(phone, country) => {
+                          const dialCode =
+                            typeof country === 'object' && country && 'dialCode' in country
+                              ? String(country.dialCode)
+                              : '';
+                          if (!phone || phone === dialCode) {
+                            onChange('');
+                          } else {
+                            onChange(`+${phone}`);
+                          }
+                        }}
+                        inputClass="!w-full !h-[42px] !rounded-xl !border !border-gray-200 !bg-gray-50 !text-sm !pl-12"
+                        containerClass="!w-full"
+                        buttonClass="!rounded-l-xl !border !border-gray-200 !bg-gray-50"
+                        dropdownClass="!rounded-xl"
+                        placeholder="Phone number"
+                        enableSearch
+                      />
+                    )}
                   />
-                  {errors.phoneNumber && (
-                    <p className="mt-1 text-xs text-red-500">{errors.phoneNumber.message}</p>
-                  )}
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-                    WhatsApp Number <span className="text-red-500">*</span>
+                    WhatsApp Number
                   </label>
-                  <input
-                    type="tel"
-                    {...register('whatsappNumber', {
-                      required: 'WhatsApp number is required',
-                    })}
-                    placeholder="e.g. +91 98765 43210"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
+                  <Controller
+                    name="whatsappNumber"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <PhoneInput
+                        country="in"
+                        value={value?.replace(/^\+/, '') || ''}
+                        onChange={(phone, country) => {
+                          const dialCode =
+                            typeof country === 'object' && country && 'dialCode' in country
+                              ? String(country.dialCode)
+                              : '';
+                          if (!phone || phone === dialCode) {
+                            onChange('');
+                          } else {
+                            onChange(`+${phone}`);
+                          }
+                        }}
+                        inputClass="!w-full !h-[42px] !rounded-xl !border !border-gray-200 !bg-gray-50 !text-sm !pl-12"
+                        containerClass="!w-full"
+                        buttonClass="!rounded-l-xl !border !border-gray-200 !bg-gray-50"
+                        dropdownClass="!rounded-xl"
+                        placeholder="WhatsApp number"
+                        enableSearch
+                      />
+                    )}
                   />
-                  {errors.whatsappNumber && (
-                    <p className="mt-1 text-xs text-red-500">{errors.whatsappNumber.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -307,6 +350,30 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
                     />
                     {errors.area && (
                       <p className="mt-1 text-xs text-red-500">{errors.area.message}</p>
+                    )}
+                  </div>
+                )}
+
+                {!isEditMode && (
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                      Who Added <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      {...register('addedBy', {
+                        required: !isEditMode ? 'Please select who added this lead' : false,
+                      })}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
+                    >
+                      <option value="">Select person</option>
+                      {LEAD_ADDED_BY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.addedBy && (
+                      <p className="mt-1 text-xs text-red-500">{errors.addedBy.message}</p>
                     )}
                   </div>
                 )}
