@@ -1,7 +1,7 @@
 {
   "hosting": {
     "source": ".",
-    "site": "shopmateez",
+    "site": "onrevv-leads",
     "ignore": [
       "firebase.json",
       "**/.*",

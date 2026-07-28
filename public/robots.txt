@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://onrevv-leads.web.app/sitemap.xml
