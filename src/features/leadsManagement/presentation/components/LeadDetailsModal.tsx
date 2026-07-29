@@ -11,7 +11,6 @@ import {
   FiEdit,
   FiClock,
   FiFileText,
-  FiArrowRight,
   FiHash,
 } from 'react-icons/fi';
 import type { LeadProps, LeadStatus, LeadType, LeadAddedBy } from '../../data/leadTypes';

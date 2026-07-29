@@ -155,7 +155,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
     reset,
     watch,
     setValue,
-    getValues,
   } = useForm<LeadFormData>({
     defaultValues,
     mode: 'onTouched',
