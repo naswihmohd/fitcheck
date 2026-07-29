@@ -145,6 +145,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
   const dispatch: AppDispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = !!lead;
+  const isNameManuallyEdited = React.useRef(false);
 
   const {
     register,
@@ -165,6 +166,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
 
   useEffect(() => {
     if (isOpen) {
+      isNameManuallyEdited.current = false;
       if (lead) {
         reset({
           name: lead.name || '',
@@ -314,7 +316,12 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
                   </label>
                   <input
                     type="text"
-                    {...register('name', { required: 'Name is required' })}
+                    {...register('name', {
+                      required: 'Name is required',
+                      onChange: () => {
+                        isNameManuallyEdited.current = true;
+                      },
+                    })}
                     placeholder="Enter lead name"
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
                   />
@@ -399,8 +406,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
                       onChange: (e) => {
                         const val = e.target.value;
                         const extracted = extractNameFromLink(val);
-                        if (extracted && !getValues('name')?.trim()) {
-                          setValue('name', extracted, { shouldValidate: true });
+                        if (extracted && !isNameManuallyEdited.current) {
+                          setValue('name', extracted, { shouldValidate: true, shouldDirty: true });
                         }
                       },
                     })}

@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import ConfirmModal from '../../../../general/components/ConfirmModal';
 import LeadCard from './LeadCard';
 import ChangeStatusModal from './ChangeStatusModal';
+import LeadDetailsModal from './LeadDetailsModal';
 import LeadContactActions from './LeadContactActions';
 import { getCallHref, getWhatsAppHref, getLinkHref } from '../utils/leadContactLinks';
 
@@ -61,6 +62,7 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
   const dispatch = useDispatch();
   const [showDeleteModalId, setShowDeleteModalId] = useState<string | null>(null);
   const [statusLead, setStatusLead] = useState<LeadProps | null>(null);
+  const [detailedLead, setDetailedLead] = useState<LeadProps | null>(null);
 
   const selectedLead = leads.find((lead) => lead.id === showDeleteModalId);
 
@@ -91,6 +93,7 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
             onEdit={onEdit}
             onDelete={setShowDeleteModalId}
             onChangeStatus={setStatusLead}
+            onViewDetail={setDetailedLead}
           />
         ))}
       </div>
@@ -144,7 +147,11 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-500">
                   {String(index + 1).padStart(2, '0')}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4">
+                <td
+                  className="whitespace-nowrap px-6 py-4 cursor-pointer hover:bg-slate-50/50"
+                  onClick={() => setDetailedLead(lead)}
+                  title="View profile details"
+                >
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <FiUser className="h-4 w-4" />
@@ -282,6 +289,12 @@ function LeadTable({ leads, onEdit }: LeadTableProps) {
         isOpen={!!statusLead}
         lead={statusLead}
         onClose={() => setStatusLead(null)}
+      />
+
+      <LeadDetailsModal
+        isOpen={!!detailedLead}
+        lead={detailedLead}
+        onClose={() => setDetailedLead(null)}
       />
 
       {selectedLead && showDeleteModalId && (
