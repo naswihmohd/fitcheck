@@ -7,12 +7,6 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { user } = useSelector((state: RootState) => state.user);
-
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
-
     return <>{children}</>;
 };
 
