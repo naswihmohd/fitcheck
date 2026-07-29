@@ -167,14 +167,24 @@ function LeadCard({ lead, onEdit, onDelete, onChangeStatus, onViewDetail }: Lead
       )}
 
       <div className="mt-2 flex items-center justify-between gap-1.5 border-t border-gray-100 pt-2">
-        <button
-          type="button"
-          onClick={() => onChangeStatus(lead)}
-          className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] font-semibold text-gray-700 transition-colors hover:bg-gray-100"
-        >
-          <FiRefreshCw className="h-3 w-3" />
-          Status
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onChangeStatus(lead)}
+            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            <FiRefreshCw className="h-3 w-3" />
+            Status
+          </button>
+          <button
+            type="button"
+            onClick={() => onViewDetail(lead)}
+            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            <FiUser className="h-3.5 w-3.5" />
+            Details
+          </button>
+        </div>
 
         <div className="flex items-center">
           <button
