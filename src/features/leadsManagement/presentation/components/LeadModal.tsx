@@ -76,6 +76,71 @@ function formatDateForInput(timestamp: Timestamp | null | undefined): string {
   return `${year}-${month}-${day}`;
 }
 
+function extractNameFromLink(urlStr: string): string | null {
+  try {
+    const trimmed = urlStr.trim();
+    if (!trimmed) return null;
+    
+    let parsedUrlStr = trimmed;
+    if (!/^https?:\/\//i.test(trimmed)) {
+      parsedUrlStr = 'https://' + trimmed;
+    }
+    
+    const url = new URL(parsedUrlStr);
+    const hostname = url.hostname.toLowerCase();
+    
+    // 1. Instagram
+    if (hostname.includes('instagram.com')) {
+      const segments = url.pathname.split('/').filter(Boolean);
+      if (segments.length > 0) {
+        const username = segments[0];
+        if (!['p', 'reel', 'stories', 'explore', 'direct'].includes(username.toLowerCase())) {
+          return decodeURIComponent(username);
+        }
+      }
+    }
+    
+    // 2. Facebook
+    if (hostname.includes('facebook.com') || hostname.includes('fb.com')) {
+      const segments = url.pathname.split('/').filter(Boolean);
+      if (segments.length > 0) {
+        const username = segments[0];
+        if (!['groups', 'pages', 'people', 'profile.php', 'share', 'sharer'].includes(username.toLowerCase())) {
+          return decodeURIComponent(username);
+        }
+        if (username.toLowerCase() === 'profile.php') {
+          const id = url.searchParams.get('id');
+          if (id) return id;
+        }
+      }
+    }
+
+    // 3. TikTok
+    if (hostname.includes('tiktok.com')) {
+      const segments = url.pathname.split('/').filter(Boolean);
+      if (segments.length > 0) {
+        const username = segments[0];
+        if (username.startsWith('@')) {
+          return decodeURIComponent(username.substring(1));
+        }
+        return decodeURIComponent(username);
+      }
+    }
+
+    // 4. Fallback for other URLs
+    const segments = url.pathname.split('/').filter(Boolean);
+    if (segments.length > 0) {
+      const firstSegment = segments[0];
+      if (firstSegment.length > 2 && !firstSegment.includes('.')) {
+        return decodeURIComponent(firstSegment);
+      }
+    }
+  } catch (e) {
+    // Ignore
+  }
+  return null;
+}
+
 const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
   const dispatch: AppDispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,6 +153,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
     formState: { errors },
     reset,
     watch,
+    setValue,
+    getValues,
   } = useForm<LeadFormData>({
     defaultValues,
     mode: 'onTouched',
@@ -328,7 +395,15 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, lead }) => {
                   </label>
                   <input
                     type="url"
-                    {...register('link')}
+                    {...register('link', {
+                      onChange: (e) => {
+                        const val = e.target.value;
+                        const extracted = extractNameFromLink(val);
+                        if (extracted && !getValues('name')?.trim()) {
+                          setValue('name', extracted, { shouldValidate: true });
+                        }
+                      },
+                    })}
                     placeholder="https://..."
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
                   />
