@@ -1,4 +1,4 @@
-import { HiHome, HiUserGroup, HiCalendar, HiCollection } from 'react-icons/hi';
+import { HiHome, HiUserGroup, HiCalendar, HiCollection, HiClipboardList } from 'react-icons/hi';
 import type { IconType } from 'react-icons';
 
 export interface NavItem {
@@ -32,5 +32,11 @@ export const navigationItems: NavItem[] = [
         title: 'Groups',
         icon: HiCollection,
         path: '/groups',
+    },
+    {
+        id: 'todo',
+        title: 'Todo',
+        icon: HiClipboardList,
+        path: '/todo',
     },
 ];

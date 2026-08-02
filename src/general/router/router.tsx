@@ -11,6 +11,7 @@ import TodayLeads from '../../features/followUps/presentation/tabs/TodayLeads.ts
 import OverdueFollowUps from '../../features/followUps/presentation/tabs/OverdueFollowUps.tsx';
 import Groups from '../../features/groups/presentation/Groups.tsx';
 import GroupLeads from '../../features/groups/presentation/GroupLeads.tsx';
+import TodoPage from '../../features/todo/presentation/TodoPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,8 @@ export const router = createBrowserRouter([
       },
       { path: "groups", element: <Groups /> },
       { path: "groups/:status", element: <GroupLeads /> },
+      { path: "todo", element: <TodoPage /> },
+      { path: "todo/:projectId", element: <TodoPage /> },
     ],
   },
   {

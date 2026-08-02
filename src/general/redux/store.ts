@@ -7,6 +7,7 @@ import leadsReducer from '../../features/leadsManagement/redux/leadSlice';
 import followUpsReducer from '../../features/followUps/redux/followUpSlice';
 import groupsReducer from '../../features/groups/redux/groupSlice';
 import dashboardReducer from '../../features/dashboard/redux/dashboardSlice';
+import todoReducer from '../../features/todo/redux/todoSlice';
 
 
 const persistConfig = {
@@ -26,6 +27,7 @@ const store = configureStore({
     followUps: followUpsReducer,
     groups: groupsReducer,
     dashboard: dashboardReducer,
+    todo: todoReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
