@@ -9,7 +9,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   Timestamp,
   updateDoc,
   arrayUnion
@@ -35,8 +34,7 @@ export const fetchProjects = createAsyncThunk(
     try {
       const q = query(
         collection(db, 'todo_projects'),
-        where('createdBy', '==', userId),
-        orderBy('createdAt', 'desc')
+        where('createdBy', '==', userId)
       );
       const querySnapshot = await getDocs(q);
       const projects: TodoProject[] = [];
@@ -51,6 +49,14 @@ export const fetchProjects = createAsyncThunk(
           tasks: data.tasks || [],
         } as TodoProject);
       });
+
+      // Sort client-side by createdAt desc to avoid composite index requirement
+      projects.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
       return projects;
     } catch (error) {
       throw new Error((error as Error).message);
