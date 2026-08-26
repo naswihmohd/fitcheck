@@ -19,6 +19,7 @@ interface LineChartProps {
   }>;
   title: string;
   height?: number | `${number}%`;
+  valueFormatter?: (value: number) => string;
 }
 
 function useIsMobile(breakpoint = 768) {
@@ -37,7 +38,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-const LineChart = ({ data, lines, title, height = '100%' }: LineChartProps) => {
+const LineChart = ({ data, lines, title, height = '100%', valueFormatter }: LineChartProps) => {
   const isMobile = useIsMobile();
 
   const getMaxValue = () => {
@@ -121,6 +122,9 @@ const LineChart = ({ data, lines, title, height = '100%' }: LineChartProps) => {
             padding: isMobile ? '6px 8px' : '8px 12px',
           }}
           labelStyle={{ color: '#6b7280', marginBottom: 2 }}
+          formatter={(value) =>
+            valueFormatter ? valueFormatter(Number(value) || 0) : String(value ?? 0)
+          }
         />
         {lines.map((line) => (
           <Line

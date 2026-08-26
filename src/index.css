@@ -621,3 +621,43 @@ input[type=number] {
 .category-shadow {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+.dashboard-date-range .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.dashboard-date-range .react-datepicker__input-container {
+  display: block;
+  position: relative;
+  width: 100%;
+}
+
+.dashboard-date-range .react-datepicker__calendar-icon {
+  padding: 0.45rem 0.6rem;
+  fill: #6b7280;
+}
+
+.dashboard-date-range .react-datepicker__close-icon::after {
+  background-color: #9ca3af;
+  font-size: 14px;
+  height: 16px;
+  width: 16px;
+  padding: 0;
+}
+
+.dashboard-date-range-popper {
+  z-index: 60 !important;
+}
+
+.dashboard-date-range-popper .react-datepicker__day--in-range,
+.dashboard-date-range-popper .react-datepicker__day--in-selecting-range {
+  background-color: #e6e6ff;
+  color: #000094;
+}
+
+.dashboard-date-range-popper .react-datepicker__day--selected,
+.dashboard-date-range-popper .react-datepicker__day--range-start,
+.dashboard-date-range-popper .react-datepicker__day--range-end {
+  background-color: #000094;
+  color: #fff;
+}

@@ -2,12 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from "redux-persist/lib/storage";
 import authReducer from '../../features/login/redux/authSlice';
-import blogsReducer from '../../features/blogs/redux/blogSlice';
-import leadsReducer from '../../features/leadsManagement/redux/leadSlice';
-import followUpsReducer from '../../features/followUps/redux/followUpSlice';
-import groupsReducer from '../../features/groups/redux/groupSlice';
 import dashboardReducer from '../../features/dashboard/redux/dashboardSlice';
-import todoReducer from '../../features/todo/redux/todoSlice';
+import transactionsReducer from '../../features/transactions/redux/transactionSlice';
 
 
 const persistConfig = {
@@ -22,12 +18,8 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 const store = configureStore({
   reducer: {
     user: persistedAuthReducer,
-    blogs: blogsReducer,
-    leads: leadsReducer,
-    followUps: followUpsReducer,
-    groups: groupsReducer,
     dashboard: dashboardReducer,
-    todo: todoReducer,
+    transactions: transactionsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

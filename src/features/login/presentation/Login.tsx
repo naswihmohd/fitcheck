@@ -20,7 +20,7 @@ const Login: React.FC = () => {
                         Welcome back
                     </h1>
                     <p className="mt-1 text-sm text-gray-500 sm:text-base">
-                        Login to continue
+                        Sign in to company accounts
                     </p>
                 </div>
 
