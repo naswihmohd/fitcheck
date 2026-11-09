@@ -4,12 +4,13 @@ import { router } from './general/router/router';
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import type { AppDispatch } from './general/redux/store';
 import { useDispatch } from 'react-redux';
 import { clearUser, setUser } from './features/login/redux/authSlice';
 import PwaInstallBanner from './features/layout/presentation/components/PwaInstallBanner';
 import useAppSeo from './features/layout/presentation/hooks/useAppSeo';
+import { isAllowedEmail } from './features/login/constants/allowedEmails';
 
 function App() {
   const dispatch: AppDispatch = useDispatch();
@@ -17,8 +18,15 @@ function App() {
   useAppSeo();
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        if (!isAllowedEmail(firebaseUser.email)) {
+          await signOut(auth);
+          dispatch(clearUser());
+          setLoading(false);
+          return;
+        }
+
         dispatch(setUser({
           id: firebaseUser.uid,
           email: firebaseUser.email ?? '',
