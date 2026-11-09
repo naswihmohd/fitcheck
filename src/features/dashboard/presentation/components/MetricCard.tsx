@@ -43,9 +43,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
             {title}
           </h3>
           <p
-            className={`mt-1 text-xl font-bold leading-none md:mt-2 md:text-3xl ${
-              isPending ? 'text-[#FE4606]' : 'text-gray-900'
-            }`}
+            className={`mt-1 text-base font-bold leading-none md:mt-2 md:text-3xl ${isPending ? 'text-[#FE4606]' : 'text-gray-900'
+              }`}
           >
             {loading ? '…' : value}
           </p>

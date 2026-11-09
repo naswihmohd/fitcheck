@@ -9,6 +9,7 @@ import {
   FiMinusCircle,
   FiPaperclip,
   FiPlusCircle,
+  FiShoppingBag,
   FiX,
 } from 'react-icons/fi';
 import { collection, doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
@@ -83,6 +84,12 @@ const TYPE_BUTTONS: {
     label: 'Withdrawal',
     icon: FiMinusCircle,
     activeClass: 'border-amber-600 bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
+  },
+  {
+    value: 'purchase',
+    label: 'Purchase',
+    icon: FiShoppingBag,
+    activeClass: 'border-purple-600 bg-purple-50 text-purple-700 ring-1 ring-purple-600/20',
   },
 ];
 
@@ -293,7 +300,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, tr
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">
                     Type <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {TYPE_BUTTONS.map((option) => {
                       const Icon = option.icon;
                       const isActive = type === option.value;
@@ -349,7 +356,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, tr
                       type="hidden"
                       {...register('partner', {
                         validate: (value) =>
-                          !showPartner || value ? true : 'Select Naswih or Anujith',
+                          !showPartner || value ? true : 'Select Shafi or Ajmal',
                       })}
                     />
                     {errors.partner && (
@@ -399,7 +406,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, tr
                         ? 'Why is this capital being added?'
                         : type === 'withdrawal'
                           ? 'Why is this amount being withdrawn?'
-                          : 'What is this transaction for?'
+                          : type === 'purchase'
+                            ? 'What items were purchased?'
+                            : 'What is this transaction for?'
                     }
                     className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:bg-white"
                   />

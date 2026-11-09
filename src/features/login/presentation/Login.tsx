@@ -13,7 +13,7 @@ const Login: React.FC = () => {
                 <div className="mb-4 flex flex-col items-center text-center">
                     <img
                         src="/apple-touch-icon.png"
-                        alt="OnRevv logo"
+                        alt="fitcheck logo"
                         className="mb-5 h-auto w-full rounded-xl object-contain max-w-[80px]"
                     />
                     <h1 className="text-xl font-semibold text-secondary sm:text-2xl">

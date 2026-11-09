@@ -6,12 +6,12 @@ import { getFunctions } from "firebase/functions";
 // import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC7vQ8A6s2mFD-BMDRhu6PayXoRSAVRGm4",
-  authDomain: "onrevv-accounts.firebaseapp.com",
-  projectId: "onrevv-accounts",
-  storageBucket: "onrevv-accounts.firebasestorage.app",
-  messagingSenderId: "409219477125",
-  appId: "1:409219477125:web:ce9d5168c62a2d1a9583ec"
+  apiKey: "AIzaSyDhvvxhYtYLhMCzOp9Q98PxTl31elnQYqQ",
+  authDomain: "fitchecksurplus.firebaseapp.com",
+  projectId: "fitchecksurplus",
+  storageBucket: "fitchecksurplus.firebasestorage.app",
+  messagingSenderId: "628698026069",
+  appId: "1:628698026069:web:c34c52e15463dea40c04dc"
 };
 
 // if (process.env.NODE_ENV !== 'production' && typeof window !== "undefined") {

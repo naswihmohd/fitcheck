@@ -83,7 +83,7 @@ function Transactions() {
         <div>
           <h1 className="text-base font-bold text-gray-900 md:text-xl">Transactions</h1>
           <p className="mt-0.5 text-xs text-gray-500 md:text-sm">
-            Track income, expenses, investments, and withdrawals
+            Track income, expenses, purchases, investments, and withdrawals
           </p>
         </div>
 

@@ -7,7 +7,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISS_KEY = 'onrevv-pwa-install-dismissed';
+const DISMISS_KEY = 'fitcheck-pwa-install-dismissed';
 
 const isStandaloneDisplay = () =>
   window.matchMedia('(display-mode: standalone)').matches ||

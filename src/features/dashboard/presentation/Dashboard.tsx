@@ -12,6 +12,8 @@ import {
   FiLogOut,
   FiMinusCircle,
   FiPlusCircle,
+  FiShoppingBag,
+  FiTrendingDown,
   FiTrendingUp,
 } from 'react-icons/fi';
 import type { AppDispatch, RootState } from '../../../general/redux/store';
@@ -99,6 +101,21 @@ function Dashboard() {
       color: '#FFF6E8',
       icon: FiMinusCircle,
       iconClassName: 'text-amber-600',
+    },
+    {
+      title: 'Total Purchase',
+      value: formatCurrency(analytics.purchase),
+      color: '#F5F0FF',
+      icon: FiShoppingBag,
+      iconClassName: 'text-purple-600',
+    },
+    {
+      title: 'Income − Purchase',
+      value: formatCurrency(analytics.purchaseVsIncomeNet),
+      color: analytics.purchaseVsIncomeNet < 0 ? '#FDECEC' : '#E8F8F0',
+      icon: analytics.purchaseVsIncomeNet < 0 ? FiTrendingDown : FiTrendingUp,
+      iconClassName: analytics.purchaseVsIncomeNet < 0 ? 'text-rose-600' : 'text-emerald-600',
+      isPending: analytics.purchaseVsIncomeNet < 0,
     },
     {
       title: 'Balance',
@@ -254,7 +271,7 @@ function Dashboard() {
             Cofounder Fund Flow
           </h3>
           <p className="text-[11px] text-gray-500 md:text-xs">
-            Capital invested and withdrawn by Naswih and Anujith
+            Capital invested and withdrawn by Shafi and Ajmal
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-3">

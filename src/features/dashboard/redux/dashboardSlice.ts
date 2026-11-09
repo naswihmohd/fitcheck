@@ -51,6 +51,8 @@ export interface DashboardAnalytics {
   expense: number;
   investment: number;
   withdrawal: number;
+  purchase: number;
+  purchaseVsIncomeNet: number;
   balance: number;
   transactionCount: number;
   weekTrend: WeekDayAmount[];
@@ -129,6 +131,8 @@ const initialAnalytics = (): DashboardAnalytics => ({
   expense: 0,
   investment: 0,
   withdrawal: 0,
+  purchase: 0,
+  purchaseVsIncomeNet: 0,
   balance: 0,
   transactionCount: 0,
   weekTrend: emptyWeekTrend(),
@@ -261,14 +265,20 @@ export const fetchDashboardAnalytics = createAsyncThunk(
         where('type', '==', 'withdrawal'),
         ...rangeFilters
       );
+      const purchaseQuery = query(
+        transactionsRef,
+        where('type', '==', 'purchase'),
+        ...rangeFilters
+      );
       const weekDayStarts = trendDays(range);
 
-      const [incomeAgg, expenseAgg, investmentAgg, withdrawalAgg, weekAmounts, recentSnap, partnerFlows] =
+      const [incomeAgg, expenseAgg, investmentAgg, withdrawalAgg, purchaseAgg, weekAmounts, recentSnap, partnerFlows] =
         await Promise.all([
           fetchSumAndCount(incomeQuery),
           fetchSumAndCount(expenseQuery),
           fetchSumAndCount(investmentQuery),
           fetchSumAndCount(withdrawalQuery),
+          fetchSumAndCount(purchaseQuery),
           Promise.all(weekDayStarts.map((dayStart) => fetchDayAmounts(transactionsRef, dayStart))),
           getDocs(query(transactionsRef, ...rangeFilters, orderBy('date', 'desc'), limit(5))),
           fetchPartnerFlows(transactionsRef, rangeFilters),
@@ -276,13 +286,15 @@ export const fetchDashboardAnalytics = createAsyncThunk(
 
       const analytics = initialAnalytics();
       analytics.transactionCount =
-        incomeAgg.count + expenseAgg.count + investmentAgg.count + withdrawalAgg.count;
+        incomeAgg.count + expenseAgg.count + investmentAgg.count + withdrawalAgg.count + purchaseAgg.count;
       analytics.income = incomeAgg.total;
       analytics.expense = expenseAgg.total;
       analytics.investment = investmentAgg.total;
       analytics.withdrawal = withdrawalAgg.total;
+      analytics.purchase = purchaseAgg.total;
+      analytics.purchaseVsIncomeNet = analytics.income - analytics.purchase;
       analytics.balance =
-        analytics.income + analytics.investment - analytics.expense - analytics.withdrawal;
+        analytics.income + analytics.investment - analytics.expense - analytics.withdrawal - analytics.purchase;
       analytics.partnerFlows = partnerFlows;
       analytics.weekTrend = emptyWeekTrend(range).map((day, index) => ({
         ...day,

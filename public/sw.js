@@ -1,5 +1,5 @@
 /* Basic PWA service worker for installability + offline shell */
-const CACHE_NAME = 'onrevv-accounts-v1';
+const CACHE_NAME = 'fitcheck-accounts-v1';
 const PRECACHE_URLS = ['/', '/index.html', '/site.webmanifest', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {

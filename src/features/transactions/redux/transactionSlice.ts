@@ -37,6 +37,7 @@ const initialSummary = (): TransactionSummary => ({
   expense: 0,
   investment: 0,
   withdrawal: 0,
+  purchase: 0,
 });
 
 const initialState: TransactionsState = {

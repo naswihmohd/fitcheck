@@ -1,16 +1,17 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type TransactionType = 'income' | 'expense' | 'investment' | 'withdrawal';
+export type TransactionType = 'income' | 'expense' | 'investment' | 'withdrawal' | 'purchase';
 
 export type TransactionTypeFilter = 'all' | TransactionType;
 
-export type Cofounder = 'naswih' | 'anujith';
+export type Cofounder = 'shafi' | 'ajmal';
 
 export const TRANSACTION_TYPE_OPTIONS: { value: TransactionType; label: string }[] = [
   { value: 'income', label: 'Income' },
   { value: 'expense', label: 'Expense' },
   { value: 'investment', label: 'Investment' },
   { value: 'withdrawal', label: 'Withdrawal' },
+  { value: 'purchase', label: 'Purchase' },
 ];
 
 export const TRANSACTION_FILTER_OPTIONS: { value: TransactionTypeFilter; label: string }[] = [
@@ -19,11 +20,12 @@ export const TRANSACTION_FILTER_OPTIONS: { value: TransactionTypeFilter; label: 
   { value: 'expense', label: 'Expense' },
   { value: 'investment', label: 'Investment' },
   { value: 'withdrawal', label: 'Withdrawal' },
+  { value: 'purchase', label: 'Purchase' },
 ];
 
 export const COFOUNDERS: { value: Cofounder; label: string }[] = [
-  { value: 'naswih', label: 'Naswih' },
-  { value: 'anujith', label: 'Anujith' },
+  { value: 'shafi', label: 'Shafi' },
+  { value: 'ajmal', label: 'Ajmal' },
 ];
 
 export interface TransactionProps {
@@ -45,6 +47,7 @@ export interface TransactionSummary {
   expense: number;
   investment: number;
   withdrawal: number;
+  purchase: number;
 }
 
 export function isFundFlowType(type: TransactionType): type is 'investment' | 'withdrawal' {
@@ -60,7 +63,8 @@ export function parseTransactionType(value: unknown): TransactionType {
     value === 'expense' ||
     value === 'investment' ||
     value === 'withdrawal' ||
-    value === 'income'
+    value === 'income' ||
+    value === 'purchase'
   ) {
     return value;
   }
@@ -68,6 +72,6 @@ export function parseTransactionType(value: unknown): TransactionType {
 }
 
 export function parseCofounder(value: unknown): Cofounder | null {
-  if (value === 'naswih' || value === 'anujith') return value;
+  if (value === 'shafi' || value === 'ajmal') return value;
   return null;
 }

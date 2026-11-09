@@ -24,6 +24,8 @@ export function getTypeBadgeClass(type: TransactionType) {
       return 'bg-sky-50 text-sky-700';
     case 'withdrawal':
       return 'bg-amber-50 text-amber-700';
+    case 'purchase':
+      return 'bg-purple-50 text-purple-700';
     default:
       return 'bg-rose-50 text-rose-700';
   }
@@ -37,6 +39,8 @@ export function getTypeIconWrapClass(type: TransactionType) {
       return 'bg-sky-50 text-sky-600';
     case 'withdrawal':
       return 'bg-amber-50 text-amber-600';
+    case 'purchase':
+      return 'bg-purple-50 text-purple-600';
     default:
       return 'bg-rose-50 text-rose-600';
   }
@@ -50,6 +54,8 @@ export function getAmountTextClass(type: TransactionType) {
       return 'text-sky-600';
     case 'withdrawal':
       return 'text-amber-600';
+    case 'purchase':
+      return 'text-purple-600';
     default:
       return 'text-rose-600';
   }
