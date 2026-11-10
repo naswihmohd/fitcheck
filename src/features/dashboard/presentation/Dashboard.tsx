@@ -138,14 +138,14 @@ function Dashboard() {
     analytics.weekTrend.length > 0
       ? analytics.weekTrend
       : [
-          { name: 'Sun', income: 0, expense: 0 },
-          { name: 'Mon', income: 0, expense: 0 },
-          { name: 'Tue', income: 0, expense: 0 },
-          { name: 'Wed', income: 0, expense: 0 },
-          { name: 'Thu', income: 0, expense: 0 },
-          { name: 'Fri', income: 0, expense: 0 },
-          { name: 'Sat', income: 0, expense: 0 },
-        ];
+        { name: 'Sun', income: 0, expense: 0 },
+        { name: 'Mon', income: 0, expense: 0 },
+        { name: 'Tue', income: 0, expense: 0 },
+        { name: 'Wed', income: 0, expense: 0 },
+        { name: 'Thu', income: 0, expense: 0 },
+        { name: 'Fri', income: 0, expense: 0 },
+        { name: 'Sat', income: 0, expense: 0 },
+      ];
 
   return (
     <div className="min-h-screen space-y-2.5 pb-8 md:space-y-5 md:pb-12">

@@ -239,12 +239,13 @@ async function fetchDayAmounts(transactionsRef: CollectionReference, dayStart: D
   dayEnd.setDate(dayEnd.getDate() + 1);
   const endTs = Timestamp.fromDate(dayEnd);
 
-  const [income, expense] = await Promise.all([
+  const [income, expense, purchase] = await Promise.all([
     fetchSum(datedQuery(transactionsRef, 'income', startTs, endTs)),
     fetchSum(datedQuery(transactionsRef, 'expense', startTs, endTs)),
+    fetchSum(datedQuery(transactionsRef, 'purchase', startTs, endTs)),
   ]);
 
-  return { income, expense };
+  return { income, expense: expense + purchase };
 }
 
 export const fetchDashboardAnalytics = createAsyncThunk(
@@ -288,13 +289,13 @@ export const fetchDashboardAnalytics = createAsyncThunk(
       analytics.transactionCount =
         incomeAgg.count + expenseAgg.count + investmentAgg.count + withdrawalAgg.count + purchaseAgg.count;
       analytics.income = incomeAgg.total;
-      analytics.expense = expenseAgg.total;
+      analytics.expense = expenseAgg.total + purchaseAgg.total;
       analytics.investment = investmentAgg.total;
       analytics.withdrawal = withdrawalAgg.total;
       analytics.purchase = purchaseAgg.total;
       analytics.purchaseVsIncomeNet = analytics.income - analytics.purchase;
       analytics.balance =
-        analytics.income + analytics.investment - analytics.expense - analytics.withdrawal - analytics.purchase;
+        analytics.income + analytics.investment - analytics.expense - analytics.withdrawal;
       analytics.partnerFlows = partnerFlows;
       analytics.weekTrend = emptyWeekTrend(range).map((day, index) => ({
         ...day,
